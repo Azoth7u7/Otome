@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Menú Principal - El Jardín de las Rosas y las Espinas</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,17 +13,19 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            height: 100vh; width: 100vw;
+            /* Usamos 100dvh para adaptarse a las barras del navegador móvil */
+            height: 100vh; height: 100dvh; 
+            width: 100vw;
             background: #0b0d14;
             font-family: 'Cormorant Garamond', serif;
             color: #fff;
             display: flex; flex-direction: column;
             align-items: center; 
-            /* Importante: Justify start para controlar el flujo vertical manualmente */
-            justify-content: flex-start; 
+            justify-content: space-between; /* Distribuye espacio equitativamente */
             overflow: hidden; position: relative;
             -webkit-user-select: none; user-select: none;
-            padding-top: 2vh; /* Un poco de espacio arriba */
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
         /* --- FONDO --- */
@@ -36,7 +38,6 @@
         
         .overlay-gradient {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            /* Gradiente más transparente para ver pétalos */
             background: radial-gradient(circle at 50% 50%, rgba(30, 20, 30, 0.1), rgba(0, 0, 0, 0.7) 90%);
             z-index: 1; pointer-events: none;
         }
@@ -57,13 +58,13 @@
         /* --- TÍTULO --- */
         .title-container {
             z-index: 10; text-align: center; 
-            margin-bottom: 2vh;
+            margin-top: 3vh; /* Un poco de margen arriba */
             animation: fadeInDown 2s ease-out; 
             width: 90%;
-            flex-shrink: 0;
+            flex-shrink: 0; /* No permitimos que el título se aplaste */
         }
         .game-title {
-            font-family: 'Cinzel', serif; font-size: clamp(2rem, 5vw, 4rem);
+            font-family: 'Cinzel', serif; font-size: clamp(2rem, 5vw, 4.5rem);
             line-height: 1;
             background: linear-gradient(to bottom, #fff0f5, #d4af37);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -75,96 +76,133 @@
             font-style: italic; margin-top: 10px; text-transform: uppercase; opacity: 0.9;
         }
 
-        /* --- ROSTER DE CARTAS (Contenedor) --- */
+        /* --- ROSTER DE CARTAS (Contenedor Principal) --- */
         .roster-container {
             display: flex; 
             justify-content: center; 
             align-items: flex-end; 
-            gap: 10px; 
-            height: 55vh; /* Altura dinámica */
+            gap: 12px; 
+            /* Altura flexible: ocupa el espacio disponible entre título y menú */
+            flex-grow: 1; 
             z-index: 10; 
             perspective: 1000px;
             width: 100%;
-            padding: 0 20px;
-            /* Scroll horizontal activado por si no caben */
+            padding: 20px 40px;
+            
+            /* Scroll horizontal si es necesario */
             overflow-x: auto; 
-            overflow-y: hidden;
-            /* Espacio abajo para que no choquen con el menú */
-            margin-bottom: 80px; 
-            scrollbar-width: none;
+            overflow-y: visible; /* IMPORTANTE: Visible para que se vean los globos de texto */
+            
+            /* Margen inferior para no chocar con el menú */
+            margin-bottom: 70px; 
+            scrollbar-width: none; /* Ocultar barra en Firefox */
         }
-        .roster-container::-webkit-scrollbar { display: none; }
+        .roster-container::-webkit-scrollbar { display: none; } /* Ocultar barra en Chrome */
 
-        /* --- LAS CARTAS (Diseño) --- */
+        /* --- LAS CARTAS --- */
         .card {
             position: relative; 
-            width: 160px; min-width: 140px; /* Tamaño mínimo asegurado */
-            background: rgba(20, 20, 25, 0.5); /* Cristal Oscuro */
+            width: 160px; min-width: 150px; /* Tamaño asegurado */
+            height: 60vh; /* Altura base relativa a la pantalla */
+            max-height: 400px; /* Límite máximo */
+            min-height: 250px; /* Límite mínimo */
+            
+            background: rgba(20, 20, 25, 0.4); /* Cristal semitransparente */
             border: 1px solid rgba(139, 119, 89, 0.3);
-            /* Sombra y Blur */
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            backdrop-filter: blur(3px); 
-            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-            cursor: pointer; overflow: hidden; display: flex; flex-direction: column;
+            backdrop-filter: blur(4px); 
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            cursor: pointer; 
+            /* NO usaremos overflow:hidden aquí para que el globo pueda salir */
+            /* En su lugar usamos border-radius o clip-path en la imagen interna */
+            display: flex; flex-direction: column;
             flex-shrink: 0;
         }
         
-        /* --- FORMAS GEOMÉTRICAS (Clip-Path) --- */
-        /* Importante: Mantenemos el clip-path incluso en móvil */
-        .card:nth-child(-n+3) { 
-            clip-path: polygon(0% 8%, 100% 0%, 100% 100%, 0% 100%); 
-            border-top: 1px solid rgba(255,255,255,0.3); 
+        /* Contenedor interno para recortar la imagen pero dejar salir el globo */
+        .card-inner {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            overflow: hidden; /* Aquí sí recortamos la imagen */
+            clip-path: inherit; /* Hereda la forma de la tarjeta */
+            z-index: 1;
         }
-        .card:nth-child(n+4) { 
-            clip-path: polygon(0% 0%, 100% 8%, 100% 100%, 0% 100%); 
-            border-top: 1px solid rgba(255,255,255,0.3); 
-        }
+
+        /* Formas Geométricas */
+        .card:nth-child(-n+3) { clip-path: polygon(0% 20px, 100% 0%, 100% 100%, 0% 100%); border-top: 1px solid rgba(255,255,255,0.3); }
+        .card:nth-child(n+4) { clip-path: polygon(0% 0%, 100% 20px, 100% 100%, 0% 100%); border-top: 1px solid rgba(255,255,255,0.3); }
         
-        /* Alturas Escalera */
-        .card:nth-child(1), .card:nth-child(6) { height: 80%; }
-        .card:nth-child(2), .card:nth-child(5) { height: 88%; }
+        /* Escalas Visuales */
+        .card:nth-child(1), .card:nth-child(6) { transform: scale(0.9); transform-origin: bottom; }
+        .card:nth-child(2), .card:nth-child(5) { transform: scale(0.95); transform-origin: bottom; }
         .card:nth-child(3), .card:nth-child(4) { 
-            height: 95%; 
-            border-color: rgba(212, 175, 55, 0.6);
-            background: rgba(30, 25, 30, 0.6); /* Un poco más claro al centro */
+            transform: scale(1.0); transform-origin: bottom;
+            border-color: rgba(212, 175, 55, 0.6); 
+            background: rgba(30, 25, 30, 0.5); 
         }
 
         .card-img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; filter: grayscale(0.5) contrast(1.1); }
-        .card-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 60%; background: linear-gradient(to top, rgba(10,5,10,0.9), transparent); pointer-events: none; }
+        .card-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 60%; background: linear-gradient(to top, rgba(10,5,10,0.9), transparent); pointer-events: none; z-index: 2; }
         
+        /* Efecto Hover / Activo */
         .card:hover, .card:active { 
-            height: 100%; transform: translateY(-10px) scale(1.02); 
+            transform: scale(1.05) translateY(-5px); 
             z-index: 100; border-color: #ffd700; 
             box-shadow: 0 0 25px rgba(255, 200, 100, 0.3); 
-            background: rgba(40, 30, 40, 0.8); /* Se aclara al tocar */
+            background: rgba(40, 30, 40, 0.8); 
         }
         .card:hover .card-img { filter: grayscale(0) contrast(1.05); transform: scale(1.1); }
         
-        .card-info { position: absolute; bottom: 10px; width: 100%; text-align: center; pointer-events: none; }
+        .card-info { position: absolute; bottom: 10px; width: 100%; text-align: center; pointer-events: none; z-index: 3; }
         .char-name { font-family: 'Cinzel'; font-size: 0.9rem; color: #fff; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 2px 4px #000; }
         .char-house { font-size: 0.6rem; color: #d4af37; text-transform: uppercase; letter-spacing: 1px; border-top: 1px solid rgba(212,175,55,0.3); display: inline-block; padding-top: 4px; }
 
-        /* --- MENÚ DE BOTONES (FIXED/PEGAJOSO) --- */
-        .vn-menu {
-            /* Posición fija para que SIEMPRE se vea abajo */
-            position: fixed; 
-            bottom: 0; 
-            left: 0;
-            width: 100%;
-            z-index: 100; 
-            display: flex; gap: 15px;
-            padding: 15px 20px;
-            
-            /* Fondo Cristal Oscuro pero Visible */
-            background: rgba(10, 5, 10, 0.85); 
-            border-top: 1px solid rgba(212, 175, 55, 0.3);
-            backdrop-filter: blur(5px);
-            
-            animation: fadeInUp 1.5s ease-out;
-            justify-content: center;
-            flex-wrap: wrap; /* Permitir que bajen si no caben a lo ancho */
+        /* --- GLOBO DE DIÁLOGO (SPEECH BUBBLE) --- */
+        .speech-bubble {
+            position: absolute;
+            top: -70px; /* Posición inicial arriba de la carta */
+            left: 50%; 
+            transform: translateX(-50%) scale(0.8);
+            background: rgba(250, 248, 245, 0.95);
+            color: #1a1015;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 2px solid #d4af37;
+            font-family: 'Lato', sans-serif;
+            font-size: 0.85rem;
+            font-weight: bold;
+            width: 180px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.6);
+            pointer-events: none;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 200;
         }
-        
+        /* Triángulo del globo */
+        .speech-bubble::after {
+            content: ''; position: absolute; bottom: -8px; left: 50%; margin-left: -8px;
+            border-width: 8px 8px 0; border-style: solid;
+            border-color: #d4af37 transparent;
+        }
+
+        /* Clase para mostrar el globo */
+        .card.talking .speech-bubble {
+            opacity: 1; 
+            transform: translateX(-50%) scale(1); 
+            top: -90px; /* Sube un poco al aparecer */
+        }
+
+        /* --- MENÚ DE BOTONES --- */
+        .vn-menu {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            z-index: 100; display: flex; gap: 15px; padding: 15px 20px;
+            /* Cristal Oscuro */
+            background: rgba(10, 5, 10, 0.8); 
+            border-top: 1px solid rgba(212, 175, 55, 0.3);
+            backdrop-filter: blur(8px);
+            animation: fadeInUp 1.5s ease-out;
+            justify-content: center; flex-wrap: wrap; 
+        }
         .menu-btn {
             background: transparent; border: none; color: #ccc;
             font-family: 'Cinzel', serif; font-size: 1rem;
@@ -184,28 +222,19 @@
         .modal-overlay.visible { opacity: 1; pointer-events: auto; }
 
         .modal-content {
-            width: 90%; max-width: 800px;
-            max-height: 85vh; overflow-y: auto;
+            width: 90%; max-width: 800px; max-height: 85vh; overflow-y: auto;
             background: linear-gradient(135deg, #1a1015, #080506);
-            border: 1px solid #d4af37;
-            padding: 30px; text-align: center; position: relative;
+            border: 1px solid #d4af37; padding: 30px; text-align: center; position: relative;
             box-shadow: 0 0 60px rgba(212, 175, 55, 0.15);
         }
         .modal-title { font-family: 'Cinzel'; font-size: 1.8rem; color: #d4af37; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
         .modal-text { font-family: 'Lato'; font-size: 1rem; color: #ddd; line-height: 1.6; margin-bottom: 20px; text-align: justify; }
-        
-        .credits-grid { 
-            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; 
-            border-top: 1px solid #333; padding-top: 15px; text-align: left;
-        }
+        .credits-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; border-top: 1px solid #333; padding-top: 15px; text-align: left; }
         @media (max-width: 600px) { .credits-grid { grid-template-columns: 1fr; } }
-
         .credit-item { font-size: 0.85rem; color: #888; }
         .credit-item span { color: #d4af37; font-weight: bold; display: block; margin-bottom: 2px; }
-
         .close-btn { position: absolute; top: 10px; right: 15px; font-size: 2rem; color: #666; cursor: pointer; transition: 0.3s; line-height: 0.8; }
         .close-btn:hover { color: #fff; }
-
         .modal-btn {
             background: transparent; border: 1px solid #d4af37; color: #d4af37;
             padding: 10px 30px; cursor: pointer; font-family: 'Cinzel', serif;
@@ -213,7 +242,12 @@
         }
         .modal-btn:hover { background: #d4af37; color: #000; }
 
-        /* --- ADVERTENCIA DE ORIENTACIÓN --- */
+        /* --- TRANSICIÓN --- */
+        #fade-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 3000; opacity: 0; pointer-events: none; transition: opacity 2s; }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- ORIENTACIÓN --- */
         #orientation-warning {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 9999;
@@ -224,45 +258,7 @@
         #orientation-warning p { font-family: 'Lato'; color: #888; }
         #orientation-icon { font-size: 3rem; animation: rotatePhone 2s infinite ease-in-out; margin-bottom: 20px; }
         @keyframes rotatePhone { 0%, 10% { transform: rotate(0deg); } 40%, 60% { transform: rotate(90deg); } 90%, 100% { transform: rotate(0deg); } }
-
-        /* Mostrar advertencia solo en móviles verticales */
-        @media screen and (orientation: portrait) and (max-width: 900px) {
-            #orientation-warning { display: flex; }
-        }
-
-        /* --- AJUSTES MÓVILES HORIZONTALES (LANDSCAPE) --- */
-        @media screen and (max-height: 600px) {
-            
-            /* 1. Título muy compacto */
-            .game-title { font-size: 1.5rem; margin-bottom: 0; }
-            .game-tagline { display: none; } /* Ocultar subtítulo para ganar espacio */
-
-            /* 2. Roster Scrollable */
-            .roster-container {
-                height: 55vh; /* Altura justa */
-                justify-content: flex-start; /* Alinear izquierda para scroll */
-                margin-bottom: 70px; /* Dejar hueco al menú fijo */
-                padding-left: 20px;
-            }
-            
-            /* 3. Cartas manteniedo forma pero más pequeñas */
-            .card { 
-                width: 130px; min-width: 130px; 
-            }
-
-            /* 4. Menú más compacto */
-            .vn-menu { 
-                padding: 5px 10px; 
-                gap: 10px;
-            }
-            .menu-btn { font-size: 0.85rem; padding: 5px; }
-        }
-
-        /* --- TRANSICIÓN --- */
-        #fade-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 3000; opacity: 0; pointer-events: none; transition: opacity 2s; }
-        
-        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @media screen and (orientation: portrait) and (max-width: 900px) { #orientation-warning { display: flex; } }
 
     </style>
 </head>
@@ -274,11 +270,10 @@
         <p>Para la mejor experiencia,<br>juega en modo horizontal.</p>
     </div>
 
-    <audio id="bgm" loop>
-        <source src="theme_menu.mp3" type="audio/mpeg">
-    </audio>
+    <audio id="bgm" loop><source src="theme_menu.mp3" type="audio/mpeg"></audio>
     <audio id="sfx-hover" src="hover.mp3"></audio>
     <audio id="sfx-click" src="click.mp3"></audio>
+    <audio id="char-voice"></audio>
 
     <img src="menu_bg.png" id="menu-bg" alt="Fondo">
     <div class="overlay-gradient"></div>
@@ -286,39 +281,49 @@
 
     <div class="title-container">
         <h1 class="game-title">El Jardín de las Rosas<br>y las Espinas</h1>
-        <div class="game-tagline">Aquí comienza tu historia</div>
+        <div class="game-tagline">Entre el amor y el deber</div>
     </div>
 
     <div class="roster-container">
-        <div class="card" onmouseenter="playHover()" onclick="playClick()">
-            <img src="Konrad.png" alt="Konrad" class="card-img">
+        
+        <div class="card" onclick="playChar('konrad', this)">
+            <div class="speech-bubble">...</div>
+            <div class="card-inner"><img src="Konrad.png" alt="Konrad" class="card-img"></div>
             <div class="card-overlay"></div>
             <div class="card-info"><div class="char-name">Konrad</div><div class="char-house">Casa Hohenstein</div></div>
         </div>
-        <div class="card" onmouseenter="playHover()" onclick="playClick()">
-            <img src="Friedrich.png" alt="Friedrich" class="card-img">
+
+        <div class="card" onclick="playChar('friedrich', this)">
+            <div class="speech-bubble">...</div>
+            <div class="card-inner"><img src="Friedrich.PNG" alt="Friedrich" class="card-img"></div>
             <div class="card-overlay"></div>
             <div class="card-info"><div class="char-name">Friedrich</div><div class="char-house">Heredero Eidehart</div></div>
         </div>
         
-        <div class="card" onmouseenter="playHover()" onclick="playClick()">
-            <img src="marianne.png" alt="Marianne" class="card-img">
+        <div class="card" onclick="playChar('marianne', this)">
+            <div class="speech-bubble">...</div>
+            <div class="card-inner"><img src="marianne.png" alt="Marianne" class="card-img"></div>
             <div class="card-overlay"></div>
             <div class="card-info"><div class="char-name">Marianne</div><div class="char-house">Lady Eidehart</div></div>
         </div>
-        <div class="card" onmouseenter="playHover()" onclick="playClick()">
-            <img src="Albert.png" alt="Albert" class="card-img">
+
+        <div class="card" onclick="playChar('albert', this)">
+            <div class="speech-bubble">...</div>
+            <div class="card-inner"><img src="Albert.png" alt="Albert" class="card-img"></div>
             <div class="card-overlay"></div>
             <div class="card-info"><div class="char-name">Albert</div><div class="char-house">Príncipe Herrington</div></div>
         </div>
         
-        <div class="card" onmouseenter="playHover()" onclick="playClick()">
-            <img src="Alaric.png" alt="Alaric" class="card-img">
+        <div class="card" onclick="playChar('alaric', this)">
+            <div class="speech-bubble">...</div>
+            <div class="card-inner"><img src="Alaric.png" alt="Alaric" class="card-img"></div>
             <div class="card-overlay"></div>
             <div class="card-info"><div class="char-name">Alaric</div><div class="char-house">Casa Grimmwald</div></div>
         </div>
-        <div class="card" onmouseenter="playHover()" onclick="playClick()">
-            <img src="kasimir.png" alt="Kasimir" class="card-img">
+
+        <div class="card" onclick="playChar('kasimir', this)">
+            <div class="speech-bubble">...</div>
+            <div class="card-inner"><img src="kasimir.png" alt="Kasimir" class="card-img"></div>
             <div class="card-overlay"></div>
             <div class="card-info"><div class="char-name">Kasimir</div><div class="char-house">Casa Bergendorf</div></div>
         </div>
@@ -343,7 +348,7 @@
             </div>
             
             <div class="credits-grid">
-                <div class="credit-item"><span>Voces & Soundtrack</span>Elevenlabs.io & Stable Audio</div>
+                <div class="credit-item"><span>Voces & Soundtrack</span>ElevenLabs & Stable Audio</div>
                 <div class="credit-item"><span>Ilustraciones</span>PixAI.art (Editadas)</div>
                 <div class="credit-item"><span>Efectos de Sonido (SFX)</span>SoundDino & Tunetank</div>
                 <div class="credit-item"><span>Desarrollo & Dirección</span>Azoth7u7</div>
@@ -355,9 +360,7 @@
         <div class="modal-content" onclick="event.stopPropagation()" style="max-width: 400px;">
             <span class="close-btn" onclick="closeConfig()">&times;</span>
             <h2 class="modal-title">Configuración</h2>
-            <div class="modal-text">
-                <p style="text-align: center;">No hay opciones disponibles en esta demo.</p>
-            </div>
+            <div class="modal-text"><p style="text-align: center;">No hay opciones disponibles en esta demo.</p></div>
             <button class="modal-btn" onclick="closeConfig()">Regresar</button>
         </div>
     </div>
@@ -365,103 +368,117 @@
     <div id="fade-overlay"></div>
 
     <script>
-        // --- INICIAR MÚSICA AL PRIMER TOQUE ---
+        // --- BASE DE DATOS DE DIÁLOGOS ---
+        // Asegúrate de tener estos archivos de audio en tu carpeta
+        const charData = {
+            konrad: [
+                { text: "El honor es lo único que importa.", audio: "konrad_1.mp3" },
+                { text: "¿Necesitas mi espada?", audio: "konrad_2.mp3" },
+                { text: "No tengo tiempo para juegos.", audio: "konrad_3.mp3" }
+            ],
+            friedrich: [
+                { text: "Protegeré el legado Eidehart.", audio: "friedrich_1.mp3" },
+                { text: "Marianne, ten cuidado por favor.", audio: "friedrich_2.mp3" },
+                { text: "Hay mucho peso sobre mis hombros.", audio: "friedrich_3.mp3" }
+            ],
+            marianne: [
+                { text: "¡Espero hacer muchos amigos!", audio: "marianne_1.mp3" },
+                { text: "¿Crees que encajaré en la academia?", audio: "marianne_2.mp3" },
+                { text: "¡Daré lo mejor de mí!", audio: "marianne_3.mp3" }
+            ],
+            albert: [
+                { text: "Incluso las rosas tienen espinas.", audio: "albert_1.mp3" },
+                { text: "Jeje, qué reunión tan interesante.", audio: "albert_2.mp3" },
+                { text: "La realeza siempre observa.", audio: "albert_3.mp3" }
+            ],
+            alaric: [
+                { text: "El conocimiento es el verdadero poder.", audio: "alaric_1.mp3" },
+                { text: "Silencio, estoy leyendo.", audio: "alaric_2.mp3" },
+                { text: "Mmm... un dato fascinante.", audio: "alaric_3.mp3" }
+            ],
+            kasimir: [
+                { text: "¿Buscas problemas?", audio: "kasimir_1.mp3" },
+                { text: "No me molestes ahora.", audio: "kasimir_2.mp3" },
+                { text: "Hmph. Déjame en paz.", audio: "kasimir_3.mp3" }
+            ]
+        };
+
+        // --- SISTEMA DE AUDIO E INTERACCIÓN ---
         document.body.addEventListener('click', function() { startAudio(); }, { once: true });
         document.body.addEventListener('touchstart', function() { startAudio(); }, { once: true });
 
         function startAudio() {
             const bgm = document.getElementById('bgm');
-            if (bgm.paused) {
-                bgm.volume = 0.5;
-                bgm.play().catch(()=>{});
-            }
+            if (bgm.paused) { bgm.volume = 0.5; bgm.play().catch(()=>{}); }
         }
 
-        // --- SISTEMA DE SONIDOS ---
         const hoverPlayer = document.getElementById('sfx-hover');
         const clickPlayer = document.getElementById('sfx-click');
+        const voicePlayer = document.getElementById('char-voice');
+        let currentBubble = null;
 
         function playHover() {
-            if(hoverPlayer) {
-                hoverPlayer.currentTime = 0;
-                hoverPlayer.volume = 0.4;
-                hoverPlayer.play().catch(()=>{});
-            }
+            if(hoverPlayer) { hoverPlayer.currentTime = 0; hoverPlayer.volume = 0.4; hoverPlayer.play().catch(()=>{}); }
         }
-
         function playClick() {
-            if(clickPlayer) {
-                clickPlayer.currentTime = 0;
-                clickPlayer.play().catch(()=>{});
-            }
+            if(clickPlayer) { clickPlayer.currentTime = 0; clickPlayer.play().catch(()=>{}); }
         }
 
-        // --- FUNCIONES DEL MENÚ ---
+        // --- FUNCIÓN PRINCIPAL DE DIÁLOGO ---
+        function playChar(charId, cardElement) {
+            if(!charData[charId]) return;
+
+            // 1. Elegir frase aleatoria
+            const randomIndex = Math.floor(Math.random() * charData[charId].length);
+            const data = charData[charId][randomIndex];
+
+            // 2. Gestionar Globos (Resetear otros)
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('talking'));
+            
+            const bubble = cardElement.querySelector('.speech-bubble');
+            if(bubble) {
+                bubble.textContent = data.text;
+                cardElement.classList.add('talking');
+
+                // Timer para ocultar
+                if(currentBubble) clearTimeout(currentBubble);
+                currentBubble = setTimeout(() => {
+                    cardElement.classList.remove('talking');
+                }, 3500); // 3.5 segundos visible
+            }
+
+            // 3. Reproducir Audio
+            voicePlayer.src = data.audio;
+            voicePlayer.volume = 1.0;
+            voicePlayer.play().catch(e => console.log("Falta audio: " + data.audio));
+        }
+
+        // --- NAVEGACIÓN ---
         function startGame() {
             playClick();
             const overlay = document.getElementById('fade-overlay');
             const bgm = document.getElementById('bgm');
-            
             overlay.style.opacity = 1; 
-            
             let vol = bgm.volume;
             let fade = setInterval(() => {
-                if(vol > 0.05) {
-                    vol -= 0.05;
-                    bgm.volume = vol;
-                } else {
-                    clearInterval(fade);
-                }
+                if(vol > 0.05) { vol -= 0.05; bgm.volume = vol; } else { clearInterval(fade); }
             }, 100);
-
-            setTimeout(() => {
-                window.location.href = 'prologo.html';
-            }, 2000);
+            setTimeout(() => { window.location.href = 'prologo.html'; }, 2000);
         }
 
-        function openAbout() {
-            playClick();
-            document.getElementById('about-modal').classList.add('visible');
-        }
+        function openAbout() { playClick(); document.getElementById('about-modal').classList.add('visible'); }
+        function closeAbout() { playClick(); document.getElementById('about-modal').classList.remove('visible'); }
+        function openConfig() { playClick(); document.getElementById('config-modal').classList.add('visible'); }
+        function closeConfig() { playClick(); document.getElementById('config-modal').classList.remove('visible'); }
+        function showDummy() { playClick(); alert("Función disponible en la versión completa."); }
+        function exitGame() { playClick(); if(confirm("¿Deseas salir del juego?")) window.close(); }
 
-        function closeAbout() {
-            playClick();
-            document.getElementById('about-modal').classList.remove('visible');
-        }
-
-        // --- CONFIGURACIÓN ---
-        function openConfig() {
-            playClick();
-            document.getElementById('config-modal').classList.add('visible');
-        }
-
-        function closeConfig() {
-            playClick();
-            document.getElementById('config-modal').classList.remove('visible');
-        }
-
-        function showDummy() {
-            playClick();
-            alert("Función disponible en la versión completa.");
-        }
-
-        function exitGame() {
-            playClick();
-            if(confirm("¿Deseas salir del juego?")) {
-                window.close(); 
-            }
-        }
-
-        // --- GENERADOR DE PARTÍCULAS ---
         const particleContainer = document.getElementById('particles');
-        const particleCount = 30;
-
-        for (let i = 0; i < particleCount; i++) {
+        for (let i = 0; i < 30; i++) {
             const p = document.createElement('div');
             p.classList.add('particle');
             const size = Math.random() * 4 + 2; 
-            p.style.width = `${size}px`;
-            p.style.height = `${size}px`;
+            p.style.width = `${size}px`; p.style.height = `${size}px`;
             p.style.left = `${Math.random() * 100}%`;
             p.style.animationDuration = `${Math.random() * 15 + 10}s`;
             p.style.animationDelay = `${Math.random() * 5}s`;
