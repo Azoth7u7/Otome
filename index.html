@@ -19,17 +19,11 @@
             color: #fff;
             display: flex; flex-direction: column;
             align-items: center; 
-            /* Cambio: Space between para distribuir mejor arriba y abajo */
-            justify-content: space-between; 
-            overflow: hidden; /* Intentamos que no haya scroll */
-            position: relative;
+            /* Importante: Justify start para controlar el flujo vertical manualmente */
+            justify-content: flex-start; 
+            overflow: hidden; position: relative;
             -webkit-user-select: none; user-select: none;
-            padding: 20px 0; /* Un poco de aire arriba y abajo */
-        }
-
-        /* Si la pantalla es muy bajita, permitimos scroll para ver los botones */
-        @media screen and (max-height: 400px) {
-            body { overflow-y: auto; display: block; text-align: center; }
+            padding-top: 2vh; /* Un poco de espacio arriba */
         }
 
         /* --- FONDO --- */
@@ -40,116 +34,141 @@
             transform: scale(1.1);
         }
         
-        /* Gradiente MUCHO más suave para ver los pétalos */
         .overlay-gradient {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            /* Más transparente en el centro y abajo */
-            background: radial-gradient(circle at 50% 60%, rgba(20, 10, 20, 0.1), rgba(0, 0, 0, 0.6) 90%);
+            /* Gradiente más transparente para ver pétalos */
+            background: radial-gradient(circle at 50% 50%, rgba(30, 20, 30, 0.1), rgba(0, 0, 0, 0.7) 90%);
             z-index: 1; pointer-events: none;
         }
 
-        /* --- PARTÍCULAS (PÉTALOS) --- */
-        /* Z-Index ajustado para que pasen entre el fondo y la UI */
+        /* --- PARTÍCULAS --- */
         .particles { position: fixed; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
         .particle {
-            position: absolute; background: rgba(255, 190, 210, 0.7); /* Más brillantes */
-            border-radius: 50% 0 50% 50%; /* Forma más de hoja/pétalo */
-            box-shadow: 0 0 8px rgba(255, 200, 220, 0.9);
-            animation: fall linear infinite;
+            position: absolute; background: rgba(255, 200, 220, 0.6);
+            border-radius: 50%; box-shadow: 0 0 5px rgba(255, 200, 220, 0.8);
+            animation: floatUp linear infinite;
         }
-        @keyframes fall {
-            0% { transform: translateY(-10vh) rotate(0deg) translateX(0); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(110vh) rotate(360deg) translateX(50px); opacity: 0; }
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            30% { opacity: 1; }
+            100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
         }
 
         /* --- TÍTULO --- */
         .title-container {
             z-index: 10; text-align: center; 
+            margin-bottom: 2vh;
             animation: fadeInDown 2s ease-out; 
-            width: 90%; margin: 0 auto;
+            width: 90%;
             flex-shrink: 0;
         }
         .game-title {
-            font-family: 'Cinzel', serif; 
-            font-size: clamp(1.8rem, 4vw, 4rem); /* Texto dinámico */
+            font-family: 'Cinzel', serif; font-size: clamp(2rem, 5vw, 4rem);
             line-height: 1;
             background: linear-gradient(to bottom, #fff0f5, #d4af37);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+            text-shadow: 0 0 30px rgba(212, 175, 55, 0.4);
             text-transform: uppercase; letter-spacing: 4px;
         }
         .game-tagline {
-            font-size: clamp(0.7rem, 1.5vw, 1.2rem); color: #e0c0c0; letter-spacing: 4px;
-            font-style: italic; margin-top: 5px; text-transform: uppercase; opacity: 0.9;
+            font-size: clamp(0.8rem, 2vw, 1.2rem); color: #e0c0c0; letter-spacing: 4px;
+            font-style: italic; margin-top: 10px; text-transform: uppercase; opacity: 0.9;
         }
 
-        /* --- ROSTER DE CARTAS --- */
+        /* --- ROSTER DE CARTAS (Contenedor) --- */
         .roster-container {
             display: flex; 
             justify-content: center; 
             align-items: flex-end; 
             gap: 10px; 
-            height: 45vh; /* Altura flexible */
+            height: 55vh; /* Altura dinámica */
             z-index: 10; 
             perspective: 1000px;
             width: 100%;
-            padding: 10px 40px;
-            /* Scroll horizontal activado por si acaso */
+            padding: 0 20px;
+            /* Scroll horizontal activado por si no caben */
             overflow-x: auto; 
             overflow-y: hidden;
-            /* Ocultar barra scroll */
-            scrollbar-width: none; 
-            -ms-overflow-style: none;
+            /* Espacio abajo para que no choquen con el menú */
+            margin-bottom: 80px; 
+            scrollbar-width: none;
         }
         .roster-container::-webkit-scrollbar { display: none; }
 
+        /* --- LAS CARTAS (Diseño) --- */
         .card {
             position: relative; 
-            width: 150px; min-width: 130px;
-            /* FONDO MÁS CLARO (Cristal) */
-            background: rgba(30, 25, 30, 0.25); 
-            border: 1px solid rgba(139, 119, 89, 0.4);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            width: 160px; min-width: 140px; /* Tamaño mínimo asegurado */
+            background: rgba(20, 20, 25, 0.5); /* Cristal Oscuro */
+            border: 1px solid rgba(139, 119, 89, 0.3);
+            /* Sombra y Blur */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            backdrop-filter: blur(3px); 
             transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             cursor: pointer; overflow: hidden; display: flex; flex-direction: column;
-            flex-shrink: 0; 
-            backdrop-filter: blur(2px); /* Efecto blur leve detrás de la carta */
+            flex-shrink: 0;
         }
         
-        /* Alturas */
+        /* --- FORMAS GEOMÉTRICAS (Clip-Path) --- */
+        /* Importante: Mantenemos el clip-path incluso en móvil */
+        .card:nth-child(-n+3) { 
+            clip-path: polygon(0% 8%, 100% 0%, 100% 100%, 0% 100%); 
+            border-top: 1px solid rgba(255,255,255,0.3); 
+        }
+        .card:nth-child(n+4) { 
+            clip-path: polygon(0% 0%, 100% 8%, 100% 100%, 0% 100%); 
+            border-top: 1px solid rgba(255,255,255,0.3); 
+        }
+        
+        /* Alturas Escalera */
         .card:nth-child(1), .card:nth-child(6) { height: 80%; }
         .card:nth-child(2), .card:nth-child(5) { height: 88%; }
-        .card:nth-child(3), .card:nth-child(4) { height: 96%; border-color: rgba(212, 175, 55, 0.6); }
+        .card:nth-child(3), .card:nth-child(4) { 
+            height: 95%; 
+            border-color: rgba(212, 175, 55, 0.6);
+            background: rgba(30, 25, 30, 0.6); /* Un poco más claro al centro */
+        }
 
-        .card-img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; filter: grayscale(0.3) contrast(1.1) brightness(0.9); }
-        .card-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 50%; background: linear-gradient(to top, rgba(10,5,10,0.8), transparent); pointer-events: none; }
+        .card-img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; filter: grayscale(0.5) contrast(1.1); }
+        .card-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 60%; background: linear-gradient(to top, rgba(10,5,10,0.9), transparent); pointer-events: none; }
         
-        .card:hover, .card:active { height: 100%; transform: translateY(-10px) scale(1.05); z-index: 100; border-color: #ffd700; box-shadow: 0 0 25px rgba(255, 200, 100, 0.4); background: rgba(30, 25, 30, 0.6); }
+        .card:hover, .card:active { 
+            height: 100%; transform: translateY(-10px) scale(1.02); 
+            z-index: 100; border-color: #ffd700; 
+            box-shadow: 0 0 25px rgba(255, 200, 100, 0.3); 
+            background: rgba(40, 30, 40, 0.8); /* Se aclara al tocar */
+        }
         .card:hover .card-img { filter: grayscale(0) contrast(1.05); transform: scale(1.1); }
         
-        .card-info { position: absolute; bottom: 8px; width: 100%; text-align: center; pointer-events: none; }
-        .char-name { font-family: 'Cinzel'; font-size: 0.85rem; color: #fff; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 2px 4px #000; }
-        .char-house { font-size: 0.55rem; color: #d4af37; text-transform: uppercase; letter-spacing: 1px; border-top: 1px solid rgba(212,175,55,0.4); display: inline-block; padding-top: 2px; }
+        .card-info { position: absolute; bottom: 10px; width: 100%; text-align: center; pointer-events: none; }
+        .char-name { font-family: 'Cinzel'; font-size: 0.9rem; color: #fff; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 2px 4px #000; }
+        .char-house { font-size: 0.6rem; color: #d4af37; text-transform: uppercase; letter-spacing: 1px; border-top: 1px solid rgba(212,175,55,0.3); display: inline-block; padding-top: 4px; }
 
-        /* --- MENÚ DE BOTONES --- */
+        /* --- MENÚ DE BOTONES (FIXED/PEGAJOSO) --- */
         .vn-menu {
-            z-index: 10; display: flex; gap: 15px;
-            padding: 10px 20px;
-            /* FONDO CRISTAL CLARO */
-            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.05), transparent);
-            border-top: 1px solid rgba(212, 175, 55, 0.2);
-            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-            animation: fadeInUp 1.5s ease-out;
-            flex-wrap: wrap; justify-content: center;
-            margin-bottom: 10px;
+            /* Posición fija para que SIEMPRE se vea abajo */
+            position: fixed; 
+            bottom: 0; 
+            left: 0;
             width: 100%;
+            z-index: 100; 
+            display: flex; gap: 15px;
+            padding: 15px 20px;
+            
+            /* Fondo Cristal Oscuro pero Visible */
+            background: rgba(10, 5, 10, 0.85); 
+            border-top: 1px solid rgba(212, 175, 55, 0.3);
+            backdrop-filter: blur(5px);
+            
+            animation: fadeInUp 1.5s ease-out;
+            justify-content: center;
+            flex-wrap: wrap; /* Permitir que bajen si no caben a lo ancho */
         }
+        
         .menu-btn {
-            background: transparent; border: none; color: #ddd;
-            font-family: 'Cinzel', serif; font-size: clamp(0.9rem, 2vw, 1.1rem);
-            padding: 8px 12px; cursor: pointer; transition: 0.3s;
+            background: transparent; border: none; color: #ccc;
+            font-family: 'Cinzel', serif; font-size: 1rem;
+            padding: 5px 15px; cursor: pointer; transition: 0.3s;
             text-transform: uppercase; letter-spacing: 2px;
         }
         .menu-btn:hover, .menu-btn:active { color: #d4af37; text-shadow: 0 0 10px rgba(212, 175, 55, 0.7); transform: scale(1.1); }
@@ -157,7 +176,7 @@
         /* --- MODALES --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 2000;
+            background: rgba(0,0,0,0.95); z-index: 2000;
             display: flex; justify-content: center; align-items: center;
             opacity: 0; pointer-events: none; transition: opacity 0.5s;
             backdrop-filter: blur(5px);
@@ -167,7 +186,7 @@
         .modal-content {
             width: 90%; max-width: 800px;
             max-height: 85vh; overflow-y: auto;
-            background: linear-gradient(135deg, rgba(26, 16, 21, 0.95), rgba(8, 5, 6, 0.95));
+            background: linear-gradient(135deg, #1a1015, #080506);
             border: 1px solid #d4af37;
             padding: 30px; text-align: center; position: relative;
             box-shadow: 0 0 60px rgba(212, 175, 55, 0.15);
@@ -211,27 +230,32 @@
             #orientation-warning { display: flex; }
         }
 
-        /* --- AJUSTES ESPECÍFICOS PARA MÓVILES EN HORIZONTAL (LANDSCAPE) --- */
-        @media screen and (max-height: 500px) {
-            /* 1. Hacemos el título pequeño para que no estorbe */
-            .game-title { font-size: 1.5rem; margin-top: 5px; } 
-            .game-tagline { display: none; } /* Adiós subtítulo en móvil */
+        /* --- AJUSTES MÓVILES HORIZONTALES (LANDSCAPE) --- */
+        @media screen and (max-height: 600px) {
+            
+            /* 1. Título muy compacto */
+            .game-title { font-size: 1.5rem; margin-bottom: 0; }
+            .game-tagline { display: none; } /* Ocultar subtítulo para ganar espacio */
 
-            /* 2. Reducimos la altura de las cartas para dejar espacio a los botones */
-            .roster-container { 
-                height: 55vh; /* Ocupa un poco más de la mitad */
-                margin-bottom: 5px;
-                align-items: center; /* Centrar verticalmente */
+            /* 2. Roster Scrollable */
+            .roster-container {
+                height: 55vh; /* Altura justa */
+                justify-content: flex-start; /* Alinear izquierda para scroll */
+                margin-bottom: 70px; /* Dejar hueco al menú fijo */
+                padding-left: 20px;
             }
-            .card { width: 110px; min-width: 110px; } /* Cartas más angostas */
+            
+            /* 3. Cartas manteniedo forma pero más pequeñas */
+            .card { 
+                width: 130px; min-width: 130px; 
+            }
 
-            /* 3. Menú compacto */
+            /* 4. Menú más compacto */
             .vn-menu { 
-                padding: 5px; 
-                margin-bottom: 5px;
+                padding: 5px 10px; 
                 gap: 10px;
             }
-            .menu-btn { font-size: 0.9rem; padding: 5px; }
+            .menu-btn { font-size: 0.85rem; padding: 5px; }
         }
 
         /* --- TRANSICIÓN --- */
@@ -276,6 +300,7 @@
             <div class="card-overlay"></div>
             <div class="card-info"><div class="char-name">Friedrich</div><div class="char-house">Heredero Eidehart</div></div>
         </div>
+        
         <div class="card" onmouseenter="playHover()" onclick="playClick()">
             <img src="marianne.png" alt="Marianne" class="card-img">
             <div class="card-overlay"></div>
@@ -286,6 +311,7 @@
             <div class="card-overlay"></div>
             <div class="card-info"><div class="char-name">Albert</div><div class="char-house">Príncipe Herrington</div></div>
         </div>
+        
         <div class="card" onmouseenter="playHover()" onclick="playClick()">
             <img src="Alaric.png" alt="Alaric" class="card-img">
             <div class="card-overlay"></div>
