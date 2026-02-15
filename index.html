@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Menú Principal - El Jardín de las Rosas y las Espinas</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            height: 100vh; width: 100vw;
+            background: #0b0d14;
+            font-family: 'Cormorant Garamond', serif;
+            color: #fff;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            overflow: hidden; position: relative;
+            /* Evitar selección de texto en móviles */
+            -webkit-user-select: none; user-select: none;
+        }
+
+        /* --- FONDO --- */
+        #menu-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; z-index: 0; opacity: 0.7;
+            transition: transform 20s ease-out;
+            transform: scale(1.1);
+        }
+        
+        .overlay-gradient {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 100%, rgba(46, 16, 32, 0.4), #000 90%);
+            z-index: 1; pointer-events: none;
+        }
+
+        /* --- PARTÍCULAS --- */
+        .particles { position: absolute; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
+        .particle {
+            position: absolute; background: rgba(255, 200, 220, 0.6);
+            border-radius: 50%; box-shadow: 0 0 5px rgba(255, 200, 220, 0.8);
+            animation: floatUp linear infinite;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            30% { opacity: 1; }
+            100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
+        }
+
+        /* --- TÍTULO --- */
+        .title-container {
+            z-index: 10; text-align: center; margin-bottom: 2vh;
+            animation: fadeInDown 2s ease-out; position: relative; top: -10px;
+            width: 90%;
+        }
+        .game-title {
+            font-family: 'Cinzel', serif; font-size: clamp(2rem, 5vw, 4rem); /* Responsive Font */
+            line-height: 1;
+            background: linear-gradient(to bottom, #fff0f5, #d4af37);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(212, 175, 55, 0.4);
+            text-transform: uppercase; letter-spacing: 4px;
+        }
+        .game-tagline {
+            font-size: clamp(0.8rem, 2vw, 1.2rem); color: #e0c0c0; letter-spacing: 4px;
+            font-style: italic; margin-top: 10px; text-transform: uppercase; opacity: 0.9;
+        }
+
+        /* --- ROSTER DE CARTAS --- */
+        .roster-container {
+            display: flex; justify-content: center; align-items: flex-end;
+            gap: 10px; height: 45vh; z-index: 10; margin-bottom: 4vh;
+            perspective: 1000px;
+            /* Scroll horizontal en móviles si no caben */
+            overflow-x: auto; 
+            padding-bottom: 10px; /* Espacio para el efecto hover */
+            width: 100%;
+            /* Ocultar scrollbar */
+            scrollbar-width: none; 
+        }
+        .roster-container::-webkit-scrollbar { display: none; }
+
+        .card {
+            position: relative; 
+            width: 140px; /* Un poco más estrechas para móviles */
+            min-width: 120px; /* Mínimo para que no se aplasten */
+            background: rgba(20, 20, 25, 0.6);
+            border: 1px solid rgba(139, 119, 89, 0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            cursor: pointer; overflow: hidden; display: flex; flex-direction: column;
+            /* Flex-shrink para que no se aplasten demasiado */
+            flex-shrink: 0; 
+        }
+        
+        /* Geometría */
+        .card:nth-child(-n+3) { clip-path: polygon(0% 6%, 100% 0%, 100% 100%, 0% 100%); border-top: 1px solid rgba(255,255,255,0.2); }
+        .card:nth-child(n+4) { clip-path: polygon(0% 0%, 100% 6%, 100% 100%, 0% 100%); border-top: 1px solid rgba(255,255,255,0.2); }
+        
+        /* Alturas */
+        .card:nth-child(1), .card:nth-child(6) { height: 80%; }
+        .card:nth-child(2), .card:nth-child(5) { height: 88%; }
+        .card:nth-child(3), .card:nth-child(4) { height: 95%; border-color: rgba(212, 175, 55, 0.5); }
+
+        .card-img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; filter: grayscale(0.5) contrast(1.1); }
+        .card-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 60%; background: linear-gradient(to top, rgba(10,5,10,0.95), transparent); pointer-events: none; }
+        
+        .card:hover, .card:active { height: 100%; transform: translateY(-10px) scale(1.05); z-index: 100; border-color: #ffd700; box-shadow: 0 0 25px rgba(255, 200, 100, 0.3); }
+        .card:hover .card-img { filter: grayscale(0) contrast(1.05); transform: scale(1.1); }
+        
+        .card-info { position: absolute; bottom: 10px; width: 100%; text-align: center; pointer-events: none; }
+        .char-name { font-family: 'Cinzel'; font-size: 0.9rem; color: #fff; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 2px 4px #000; }
+        .char-house { font-size: 0.6rem; color: #d4af37; text-transform: uppercase; letter-spacing: 1px; border-top: 1px solid rgba(212,175,55,0.3); display: inline-block; padding-top: 4px; }
+
+        /* --- MENÚ DE BOTONES --- */
+        .vn-menu {
+            z-index: 10; display: flex; gap: 15px;
+            padding: 10px 20px;
+            background: linear-gradient(to right, transparent, rgba(10,5,10,0.9), transparent);
+            border-top: 1px solid rgba(212, 175, 55, 0.3);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            animation: fadeInUp 1.5s ease-out;
+            /* Wrap para móviles muy pequeños */
+            flex-wrap: wrap; justify-content: center;
+        }
+        .menu-btn {
+            background: transparent; border: none; color: #ccc;
+            font-family: 'Cinzel', serif; font-size: clamp(0.8rem, 2vw, 1.1rem);
+            padding: 5px 10px; cursor: pointer; transition: 0.3s;
+            text-transform: uppercase; letter-spacing: 2px;
+        }
+        .menu-btn:hover, .menu-btn:active { color: #d4af37; text-shadow: 0 0 10px rgba(212, 175, 55, 0.7); transform: translateY(-2px); }
+
+        /* --- MODAL "SOBRE NOSOTROS" --- */
+        #about-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 2000;
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.5s;
+            backdrop-filter: blur(5px);
+        }
+        #about-modal.visible { opacity: 1; pointer-events: auto; }
+
+        .modal-content {
+            width: 90%; max-width: 800px;
+            max-height: 90vh; overflow-y: auto; /* Scroll si es necesario */
+            background: linear-gradient(135deg, #1a1015, #080506);
+            border: 1px solid #d4af37;
+            padding: 30px; text-align: center; position: relative;
+            box-shadow: 0 0 60px rgba(212, 175, 55, 0.15);
+        }
+        .modal-title { font-family: 'Cinzel'; font-size: 1.8rem; color: #d4af37; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .modal-text { font-family: 'Lato'; font-size: 1rem; color: #ddd; line-height: 1.6; margin-bottom: 20px; text-align: justify; }
+        
+        .credits-grid { 
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; 
+            border-top: 1px solid #333; padding-top: 15px; text-align: left;
+        }
+        /* En móvil, una sola columna de créditos */
+        @media (max-width: 600px) { .credits-grid { grid-template-columns: 1fr; } }
+
+        .credit-item { font-size: 0.85rem; color: #888; }
+        .credit-item span { color: #d4af37; font-weight: bold; display: block; margin-bottom: 2px; }
+
+        .close-btn { position: absolute; top: 10px; right: 15px; font-size: 2rem; color: #666; cursor: pointer; transition: 0.3s; line-height: 0.8; }
+        .close-btn:hover { color: #fff; }
+
+        /* --- PANTALLA DE ORIENTACIÓN (PORTRAIT WARNING) --- */
+        #orientation-warning {
+            display: none; /* Oculto por defecto */
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 9999;
+            flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; color: #d4af37; padding: 20px;
+        }
+        #orientation-warning h2 { font-family: 'Cinzel'; margin-bottom: 10px; }
+        #orientation-warning p { font-family: 'Lato'; color: #888; }
+        #orientation-icon { font-size: 3rem; animation: rotatePhone 2s infinite ease-in-out; margin-bottom: 20px; }
+
+        @keyframes rotatePhone { 0%, 10% { transform: rotate(0deg); } 40%, 60% { transform: rotate(90deg); } 90%, 100% { transform: rotate(0deg); } }
+
+        /* Media Query: Solo mostrar warning en pantallas verticales (móviles) */
+        @media screen and (orientation: portrait) and (max-width: 800px) {
+            #orientation-warning { display: flex; }
+        }
+
+        /* --- TRANSICIÓN --- */
+        #fade-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 3000; opacity: 0; pointer-events: none; transition: opacity 2s; }
+
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    </style>
+</head>
+<body>
+
+    <div id="orientation-warning">
+        <div id="orientation-icon">📱 ➔ 📲</div>
+        <h2>Gira tu dispositivo</h2>
+        <p>Para la mejor experiencia,<br>juega en modo horizontal.</p>
+    </div>
+
+    <audio id="bgm" loop>
+        <source src="theme_menu.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="sfx-hover" src="hover.mp3"></audio>
+    <audio id="sfx-click" src="click.mp3"></audio>
+
+    <img src="menu_bg.png" id="menu-bg" alt="Fondo">
+    <div class="overlay-gradient"></div>
+    <div class="particles" id="particles"></div>
+
+    <div class="title-container">
+        <h1 class="game-title">El Jardín de las Rosas<br>y las Espinas</h1>
+        <div class="game-tagline">Aquí comienza tu historia</div>
+    </div>
+
+    <div class="roster-container">
+        <div class="card" onmouseenter="playHover()" onclick="playClick()">
+            <img src="Konrad.png" alt="Konrad" class="card-img">
+            <div class="card-overlay"></div>
+            <div class="card-info"><div class="char-name">Konrad</div><div class="char-house">Casa Hohenstein</div></div>
+        </div>
+        <div class="card" onmouseenter="playHover()" onclick="playClick()">
+            <img src="Friedrich.png" alt="Friedrich" class="card-img">
+            <div class="card-overlay"></div>
+            <div class="card-info"><div class="char-name">Friedrich</div><div class="char-house">Heredero Eidehart</div></div>
+        </div>
+        <div class="card" onmouseenter="playHover()" onclick="playClick()">
+            <img src="marianne.png" alt="Marianne" class="card-img">
+            <div class="card-overlay"></div>
+            <div class="card-info"><div class="char-name">Marianne</div><div class="char-house">Lady Eidehart</div></div>
+        </div>
+        <div class="card" onmouseenter="playHover()" onclick="playClick()">
+            <img src="Albert.png" alt="Albert" class="card-img">
+            <div class="card-overlay"></div>
+            <div class="card-info"><div class="char-name">Albert</div><div class="char-house">Príncipe Herrington</div></div>
+        </div>
+        <div class="card" onmouseenter="playHover()" onclick="playClick()">
+            <img src="Alaric.png" alt="Alaric" class="card-img">
+            <div class="card-overlay"></div>
+            <div class="card-info"><div class="char-name">Alaric</div><div class="char-house">Casa Grimmwald</div></div>
+        </div>
+        <div class="card" onmouseenter="playHover()" onclick="playClick()">
+            <img src="kasimir.png" alt="Kasimir" class="card-img">
+            <div class="card-overlay"></div>
+            <div class="card-info"><div class="char-name">Kasimir</div><div class="char-house">Casa Bergendorf</div></div>
+        </div>
+    </div>
+
+    <div class="vn-menu">
+        <button class="menu-btn" onmouseenter="playHover()" onclick="startGame()">Iniciar</button>
+        <button class="menu-btn" onmouseenter="playHover()" onclick="showDummy()">Cargar</button>
+        <button class="menu-btn" onmouseenter="playHover()" onclick="openAbout()">Sobre el Proyecto</button>
+        <button class="menu-btn" onmouseenter="playHover()" onclick="showDummy()">Galería</button>
+        <button class="menu-btn" onmouseenter="playHover()" onclick="exitGame()">Salir</button>
+    </div>
+
+    <div id="about-modal" onclick="closeAbout()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="close-btn" onclick="closeAbout()">&times;</span>
+            <h2 class="modal-title">Sobre este Proyecto</h2>
+            <div class="modal-text">
+                <p>Hola, soy Azoth7u7. Lo que estás viendo nació en una noche de insomnio cualquiera. Empecé practicando uno de mis pasatiempos favoritos: programar. Se me ocurrió hacer una pequeña interfaz y, cuando me di cuenta, ya estaba inmerso en la creación del prólogo de "El Jardín de las Rosas y las Espinas", el videojuego donde cobran vida los personajes de mi historia.</p>
+                <br>
+                <p>Hace unos años, un proyecto así me hubiera tomado una eternidad en soledad. Claro, podría simplemente copiar y pegar imágenes como en un PPT, pero el resultado sería mediocre. Sin embargo, es impresionante cómo hoy, gracias a las herramientas modernas, he podido dar vida a Marianne y su mundo. Aunque la mayor parte fue generada con IA (a excepción de los SFX), dediqué mucho tiempo a editar imágenes, ajustar sonidos y programar cada interacción con mucho cariño. Espero sinceramente que disfrutes este pequeño fragmento de historia tanto como yo disfruté creándolo.</p>
+            </div>
+            
+            <div class="credits-grid">
+                <div class="credit-item"><span>Voces & Soundtrack</span>Stable Audio</div>
+                <div class="credit-item"><span>Ilustraciones</span>PixAI.art (Editadas)</div>
+                <div class="credit-item"><span>Efectos de Sonido (SFX)</span>SoundDino & Tunetank</div>
+                <div class="credit-item"><span>Desarrollo & Dirección</span>Azoth7u7</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="fade-overlay"></div>
+
+    <script>
+        // --- INICIAR MÚSICA AL PRIMER TOQUE (Móviles requieren toque) ---
+        document.body.addEventListener('click', function() { startAudio(); }, { once: true });
+        document.body.addEventListener('touchstart', function() { startAudio(); }, { once: true });
+
+        function startAudio() {
+            const bgm = document.getElementById('bgm');
+            if (bgm.paused) {
+                bgm.volume = 0.5;
+                bgm.play().catch(()=>{});
+            }
+        }
+
+        // --- SISTEMA DE SONIDOS ---
+        const hoverPlayer = document.getElementById('sfx-hover');
+        const clickPlayer = document.getElementById('sfx-click');
+
+        function playHover() {
+            if(hoverPlayer) {
+                hoverPlayer.currentTime = 0;
+                hoverPlayer.volume = 0.4;
+                hoverPlayer.play().catch(()=>{});
+            }
+        }
+
+        function playClick() {
+            if(clickPlayer) {
+                clickPlayer.currentTime = 0;
+                clickPlayer.play().catch(()=>{});
+            }
+        }
+
+        // --- FUNCIONES DEL MENÚ ---
+        function startGame() {
+            playClick();
+            const overlay = document.getElementById('fade-overlay');
+            const bgm = document.getElementById('bgm');
+            
+            overlay.style.opacity = 1; 
+            
+            let vol = bgm.volume;
+            let fade = setInterval(() => {
+                if(vol > 0.05) {
+                    vol -= 0.05;
+                    bgm.volume = vol;
+                } else {
+                    clearInterval(fade);
+                }
+            }, 100);
+
+            setTimeout(() => {
+                window.location.href = 'prologo.html';
+            }, 2000);
+        }
+
+        function openAbout() {
+            playClick();
+            document.getElementById('about-modal').classList.add('visible');
+        }
+
+        function closeAbout() {
+            playClick();
+            document.getElementById('about-modal').classList.remove('visible');
+        }
+
+        function showDummy() {
+            playClick();
+            alert("Función disponible en la versión completa.");
+        }
+
+        function exitGame() {
+            playClick();
+            if(confirm("¿Deseas salir del juego?")) {
+                window.close(); 
+            }
+        }
+
+        // --- GENERADOR DE PARTÍCULAS ---
+        const particleContainer = document.getElementById('particles');
+        const particleCount = 30;
+
+        for (let i = 0; i < particleCount; i++) {
+            const p = document.createElement('div');
+            p.classList.add('particle');
+            const size = Math.random() * 4 + 2; 
+            p.style.width = `${size}px`;
+            p.style.height = `${size}px`;
+            p.style.left = `${Math.random() * 100}%`;
+            p.style.animationDuration = `${Math.random() * 15 + 10}s`;
+            p.style.animationDelay = `${Math.random() * 5}s`;
+            particleContainer.appendChild(p);
+        }
+    </script>
+</body>
+</html>
