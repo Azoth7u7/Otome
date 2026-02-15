@@ -20,7 +20,6 @@
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
             overflow: hidden; position: relative;
-            /* Evitar selección de texto en móviles */
             -webkit-user-select: none; user-select: none;
         }
 
@@ -56,9 +55,10 @@
             z-index: 10; text-align: center; margin-bottom: 2vh;
             animation: fadeInDown 2s ease-out; position: relative; top: -10px;
             width: 90%;
+            flex-shrink: 0; /* No encoger */
         }
         .game-title {
-            font-family: 'Cinzel', serif; font-size: clamp(2rem, 5vw, 4rem); /* Responsive Font */
+            font-family: 'Cinzel', serif; font-size: clamp(2rem, 5vw, 4rem);
             line-height: 1;
             background: linear-gradient(to bottom, #fff0f5, #d4af37);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -70,84 +70,89 @@
             font-style: italic; margin-top: 10px; text-transform: uppercase; opacity: 0.9;
         }
 
-        /* --- ROSTER DE CARTAS --- */
+        /* --- ROSTER DE CARTAS (Contenedor Principal) --- */
         .roster-container {
-            display: flex; justify-content: center; align-items: flex-end;
-            gap: 10px; height: 45vh; z-index: 10; margin-bottom: 4vh;
+            display: flex; 
+            justify-content: center; 
+            align-items: flex-end; /* Alinear abajo para efecto escalera */
+            gap: 10px; 
+            height: 50vh; /* Altura base en PC */
+            z-index: 10; 
+            margin-bottom: 4vh;
             perspective: 1000px;
-            /* Scroll horizontal en móviles si no caben */
-            overflow-x: auto; 
-            padding-bottom: 10px; /* Espacio para el efecto hover */
             width: 100%;
-            /* Ocultar scrollbar */
-            scrollbar-width: none; 
+            padding: 0 20px;
         }
-        .roster-container::-webkit-scrollbar { display: none; }
 
+        /* --- ESTILOS DE LA CARTA --- */
         .card {
             position: relative; 
-            width: 140px; /* Un poco más estrechas para móviles */
-            min-width: 120px; /* Mínimo para que no se aplasten */
+            width: 160px; /* Ancho base PC */
             background: rgba(20, 20, 25, 0.6);
             border: 1px solid rgba(139, 119, 89, 0.3);
             box-shadow: 0 10px 30px rgba(0,0,0,0.6);
             transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             cursor: pointer; overflow: hidden; display: flex; flex-direction: column;
-            /* Flex-shrink para que no se aplasten demasiado */
-            flex-shrink: 0; 
+            flex-shrink: 0; /* Evita que se aplasten si falta espacio */
         }
         
-        /* Geometría */
+        /* Geometría "Catedral" */
+        /* Las 3 primeras suben */
         .card:nth-child(-n+3) { clip-path: polygon(0% 6%, 100% 0%, 100% 100%, 0% 100%); border-top: 1px solid rgba(255,255,255,0.2); }
+        /* Las 3 últimas bajan */
         .card:nth-child(n+4) { clip-path: polygon(0% 0%, 100% 6%, 100% 100%, 0% 100%); border-top: 1px solid rgba(255,255,255,0.2); }
         
-        /* Alturas */
+        /* Alturas Escalera (PC) */
         .card:nth-child(1), .card:nth-child(6) { height: 80%; }
         .card:nth-child(2), .card:nth-child(5) { height: 88%; }
-        .card:nth-child(3), .card:nth-child(4) { height: 95%; border-color: rgba(212, 175, 55, 0.5); }
+        .card:nth-child(3), .card:nth-child(4) { 
+            height: 95%; 
+            border-color: rgba(212, 175, 55, 0.6); /* Marianne y Albert destacados */
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
+        }
 
         .card-img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; filter: grayscale(0.5) contrast(1.1); }
         .card-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 60%; background: linear-gradient(to top, rgba(10,5,10,0.95), transparent); pointer-events: none; }
         
         .card:hover, .card:active { height: 100%; transform: translateY(-10px) scale(1.05); z-index: 100; border-color: #ffd700; box-shadow: 0 0 25px rgba(255, 200, 100, 0.3); }
         .card:hover .card-img { filter: grayscale(0) contrast(1.05); transform: scale(1.1); }
-        
+        .roster-container:hover .card:not(:hover) { opacity: 0.5; filter: blur(1px); transform: scale(0.98); }
+
         .card-info { position: absolute; bottom: 10px; width: 100%; text-align: center; pointer-events: none; }
         .char-name { font-family: 'Cinzel'; font-size: 0.9rem; color: #fff; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 2px 4px #000; }
         .char-house { font-size: 0.6rem; color: #d4af37; text-transform: uppercase; letter-spacing: 1px; border-top: 1px solid rgba(212,175,55,0.3); display: inline-block; padding-top: 4px; }
 
         /* --- MENÚ DE BOTONES --- */
         .vn-menu {
-            z-index: 10; display: flex; gap: 15px;
-            padding: 10px 20px;
+            z-index: 10; display: flex; gap: 20px;
+            padding: 10px 30px;
             background: linear-gradient(to right, transparent, rgba(10,5,10,0.9), transparent);
             border-top: 1px solid rgba(212, 175, 55, 0.3);
             border-bottom: 1px solid rgba(212, 175, 55, 0.3);
             animation: fadeInUp 1.5s ease-out;
-            /* Wrap para móviles muy pequeños */
             flex-wrap: wrap; justify-content: center;
         }
         .menu-btn {
             background: transparent; border: none; color: #ccc;
-            font-family: 'Cinzel', serif; font-size: clamp(0.8rem, 2vw, 1.1rem);
+            font-family: 'Cinzel', serif; font-size: 1rem;
             padding: 5px 10px; cursor: pointer; transition: 0.3s;
             text-transform: uppercase; letter-spacing: 2px;
         }
         .menu-btn:hover, .menu-btn:active { color: #d4af37; text-shadow: 0 0 10px rgba(212, 175, 55, 0.7); transform: translateY(-2px); }
 
-        /* --- MODAL "SOBRE NOSOTROS" --- */
-        #about-modal {
+        /* --- MODALES --- */
+        .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.95); z-index: 2000;
             display: flex; justify-content: center; align-items: center;
             opacity: 0; pointer-events: none; transition: opacity 0.5s;
             backdrop-filter: blur(5px);
         }
-        #about-modal.visible { opacity: 1; pointer-events: auto; }
+        .modal-overlay.visible { opacity: 1; pointer-events: auto; }
 
         .modal-content {
             width: 90%; max-width: 800px;
-            max-height: 90vh; overflow-y: auto; /* Scroll si es necesario */
+            max-height: 90vh; overflow-y: auto;
             background: linear-gradient(135deg, #1a1015, #080506);
             border: 1px solid #d4af37;
             padding: 30px; text-align: center; position: relative;
@@ -160,7 +165,6 @@
             display: grid; grid-template-columns: 1fr 1fr; gap: 15px; 
             border-top: 1px solid #333; padding-top: 15px; text-align: left;
         }
-        /* En móvil, una sola columna de créditos */
         @media (max-width: 600px) { .credits-grid { grid-template-columns: 1fr; } }
 
         .credit-item { font-size: 0.85rem; color: #888; }
@@ -169,10 +173,17 @@
         .close-btn { position: absolute; top: 10px; right: 15px; font-size: 2rem; color: #666; cursor: pointer; transition: 0.3s; line-height: 0.8; }
         .close-btn:hover { color: #fff; }
 
-        /* --- PANTALLA DE ORIENTACIÓN (PORTRAIT WARNING) --- */
+        /* Botón de modal genérico */
+        .modal-btn {
+            background: transparent; border: 1px solid #d4af37; color: #d4af37;
+            padding: 10px 30px; cursor: pointer; font-family: 'Cinzel', serif;
+            font-size: 1rem; margin-top: 20px; transition: 0.3s; text-transform: uppercase;
+        }
+        .modal-btn:hover { background: #d4af37; color: #000; }
+
+        /* --- ADVERTENCIA DE ORIENTACIÓN --- */
         #orientation-warning {
-            display: none; /* Oculto por defecto */
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 9999;
             flex-direction: column; justify-content: center; align-items: center;
             text-align: center; color: #d4af37; padding: 20px;
@@ -180,17 +191,57 @@
         #orientation-warning h2 { font-family: 'Cinzel'; margin-bottom: 10px; }
         #orientation-warning p { font-family: 'Lato'; color: #888; }
         #orientation-icon { font-size: 3rem; animation: rotatePhone 2s infinite ease-in-out; margin-bottom: 20px; }
-
         @keyframes rotatePhone { 0%, 10% { transform: rotate(0deg); } 40%, 60% { transform: rotate(90deg); } 90%, 100% { transform: rotate(0deg); } }
 
-        /* Media Query: Solo mostrar warning en pantallas verticales (móviles) */
-        @media screen and (orientation: portrait) and (max-width: 800px) {
+        /* Mostrar advertencia solo en móviles verticales */
+        @media screen and (orientation: portrait) and (max-width: 900px) {
             #orientation-warning { display: flex; }
+        }
+
+        /* --- OPTIMIZACIÓN RESPONSIVA (MÓVILES HORIZONTAL) --- */
+        /* Cuando la altura es poca (Móvil acostado), reestructuramos todo */
+        @media screen and (max-height: 600px) {
+            
+            /* 1. Título más pequeño y pegado arriba */
+            .title-container { top: 5px; margin-bottom: 0; }
+            .game-title { font-size: 1.8rem; }
+            .game-tagline { display: none; } /* Ocultar tagline para ganar espacio */
+
+            /* 2. Roster Gigante y Scrollable */
+            .roster-container {
+                height: 65vh; /* Ocupar casi toda la pantalla */
+                align-items: flex-end;
+                justify-content: flex-start; /* Alinear izquierda para permitir scroll */
+                overflow-x: auto; /* Permitir scroll lateral */
+                padding-left: 40px; /* Margen inicial */
+                padding-right: 40px;
+                /* Scroll suave en iOS */
+                -webkit-overflow-scrolling: touch; 
+            }
+
+            /* 3. Cartas más grandes para que se vean bien */
+            .card {
+                width: 160px; /* Ancho fijo grande */
+                min-width: 160px;
+                margin-right: 5px;
+            }
+            /* Quitar la geometría compleja en móvil si causa problemas, o dejarla */
+            .card:hover { transform: translateY(-5px); } /* Hover menos agresivo */
+
+            /* 4. Menú pegado abajo */
+            .vn-menu {
+                bottom: 0;
+                padding: 5px 10px;
+                width: 100%;
+                background: rgba(0,0,0,0.8);
+                gap: 10px;
+            }
+            .menu-btn { font-size: 0.8rem; padding: 5px; }
         }
 
         /* --- TRANSICIÓN --- */
         #fade-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 3000; opacity: 0; pointer-events: none; transition: opacity 2s; }
-
+        
         @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -216,7 +267,7 @@
 
     <div class="title-container">
         <h1 class="game-title">El Jardín de las Rosas<br>y las Espinas</h1>
-        <div class="game-tagline">Aquí comienza tu historia</div>
+        <div class="game-tagline">Entre el amor y el deber</div>
     </div>
 
     <div class="roster-container">
@@ -226,10 +277,11 @@
             <div class="card-info"><div class="char-name">Konrad</div><div class="char-house">Casa Hohenstein</div></div>
         </div>
         <div class="card" onmouseenter="playHover()" onclick="playClick()">
-            <img src="Friedrich.png" alt="Friedrich" class="card-img">
+            <img src="Friedrich.PNG" alt="Friedrich" class="card-img">
             <div class="card-overlay"></div>
             <div class="card-info"><div class="char-name">Friedrich</div><div class="char-house">Heredero Eidehart</div></div>
         </div>
+        
         <div class="card" onmouseenter="playHover()" onclick="playClick()">
             <img src="marianne.png" alt="Marianne" class="card-img">
             <div class="card-overlay"></div>
@@ -240,6 +292,7 @@
             <div class="card-overlay"></div>
             <div class="card-info"><div class="char-name">Albert</div><div class="char-house">Príncipe Herrington</div></div>
         </div>
+        
         <div class="card" onmouseenter="playHover()" onclick="playClick()">
             <img src="Alaric.png" alt="Alaric" class="card-img">
             <div class="card-overlay"></div>
@@ -256,11 +309,11 @@
         <button class="menu-btn" onmouseenter="playHover()" onclick="startGame()">Iniciar</button>
         <button class="menu-btn" onmouseenter="playHover()" onclick="showDummy()">Cargar</button>
         <button class="menu-btn" onmouseenter="playHover()" onclick="openAbout()">Sobre el Proyecto</button>
-        <button class="menu-btn" onmouseenter="playHover()" onclick="showDummy()">Galería</button>
+        <button class="menu-btn" onmouseenter="playHover()" onclick="openConfig()">Config</button>
         <button class="menu-btn" onmouseenter="playHover()" onclick="exitGame()">Salir</button>
     </div>
 
-    <div id="about-modal" onclick="closeAbout()">
+    <div id="about-modal" class="modal-overlay" onclick="closeAbout()">
         <div class="modal-content" onclick="event.stopPropagation()">
             <span class="close-btn" onclick="closeAbout()">&times;</span>
             <h2 class="modal-title">Sobre este Proyecto</h2>
@@ -279,10 +332,21 @@
         </div>
     </div>
 
+    <div id="config-modal" class="modal-overlay" onclick="closeConfig()">
+        <div class="modal-content" onclick="event.stopPropagation()" style="max-width: 400px;">
+            <span class="close-btn" onclick="closeConfig()">&times;</span>
+            <h2 class="modal-title">Configuración</h2>
+            <div class="modal-text">
+                <p style="text-align: center;">No hay opciones disponibles en esta demo.</p>
+            </div>
+            <button class="modal-btn" onclick="closeConfig()">Regresar al Menú</button>
+        </div>
+    </div>
+
     <div id="fade-overlay"></div>
 
     <script>
-        // --- INICIAR MÚSICA AL PRIMER TOQUE (Móviles requieren toque) ---
+        // --- INICIAR MÚSICA AL PRIMER TOQUE ---
         document.body.addEventListener('click', function() { startAudio(); }, { once: true });
         document.body.addEventListener('touchstart', function() { startAudio(); }, { once: true });
 
@@ -344,6 +408,17 @@
         function closeAbout() {
             playClick();
             document.getElementById('about-modal').classList.remove('visible');
+        }
+
+        // --- CONFIGURACIÓN ---
+        function openConfig() {
+            playClick();
+            document.getElementById('config-modal').classList.add('visible');
+        }
+
+        function closeConfig() {
+            playClick();
+            document.getElementById('config-modal').classList.remove('visible');
         }
 
         function showDummy() {
