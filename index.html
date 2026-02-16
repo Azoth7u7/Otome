@@ -86,13 +86,13 @@
             width: 100%;
             padding: 20px 40px;
             overflow-x: auto; 
-            overflow-y: visible; /* Para que los globos laterales se vean */
+            overflow-y: visible; 
             margin-bottom: 70px; 
             scrollbar-width: none;
         }
         .roster-container::-webkit-scrollbar { display: none; }
 
-        /* --- LAS CARTAS (Contenedor) --- */
+        /* --- LAS CARTAS --- */
         .card {
             position: relative; 
             width: 160px; min-width: 150px; 
@@ -105,7 +105,6 @@
             z-index: 10;
         }
 
-        /* --- CUERPO VISUAL --- */
         .card-visuals {
             width: 100%; height: 100%;
             position: relative;
@@ -171,7 +170,7 @@
             z-index: 500;
         }
 
-        /* LOGICA: Cartas 1, 2, 3 -> Globo a la DERECHA */
+        /* GLOBOS IZQUIERDA (Cartas 1-3) -> Muestran a la derecha */
         .card:nth-child(-n+3) .speech-bubble {
             left: 105%; 
             transform: translateX(-10px); 
@@ -183,7 +182,7 @@
             border-color: transparent #d4af37 transparent transparent;
         }
 
-        /* LOGICA: Cartas 4, 5, 6 -> Globo a la IZQUIERDA */
+        /* GLOBOS DERECHA (Cartas 4-6) -> Muestran a la izquierda */
         .card:nth-child(n+4) .speech-bubble {
             right: 105%; 
             transform: translateX(10px); 
@@ -388,7 +387,7 @@
     <div id="fade-overlay"></div>
 
     <script>
-        // --- BASE DE DATOS DE DIÁLOGOS (ESPAÑOL FINAL) ---
+        // --- BASE DE DATOS DE DIÁLOGOS (ESPAÑOL) ---
         const charData = {
             konrad: [
                 { text: "La debilidad es un lujo que no podemos permitirnos.", audio: "konrad_1.mp3" },
@@ -458,18 +457,26 @@
                 cardElement.classList.add('talking');
             }
 
+            // --- AUDIO DUCKING (BAJAR VOLUMEN BGM) ---
+            const bgm = document.getElementById('bgm');
+            if(bgm) bgm.volume = 0.1; // Bajar música al 10%
+
             voicePlayer.src = data.audio;
             voicePlayer.volume = 1.0;
             
-            // SINCRONIZACIÓN: Ocultar globo solo cuando termine el audio
+            // SINCRONIZACIÓN: Restaurar música y ocultar globo al terminar
             voicePlayer.onended = () => {
                 cardElement.classList.remove('talking');
+                if(bgm) bgm.volume = 0.5; // Restaurar música al 50%
             };
 
             voicePlayer.play().catch(e => {
                 console.log("Falta audio: " + data.audio);
-                // Fallback de seguridad si no hay audio
-                setTimeout(() => cardElement.classList.remove('talking'), 3500);
+                // Fallback de seguridad
+                setTimeout(() => {
+                    cardElement.classList.remove('talking');
+                    if(bgm) bgm.volume = 0.5;
+                }, 3500);
             });
         }
 
