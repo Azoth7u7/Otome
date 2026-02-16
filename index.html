@@ -13,7 +13,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            /* Usamos 100dvh para adaptarse a las barras del navegador móvil */
             height: 100vh; height: 100dvh; 
             width: 100vw;
             background: #0b0d14;
@@ -21,7 +20,7 @@
             color: #fff;
             display: flex; flex-direction: column;
             align-items: center; 
-            justify-content: space-between; /* Distribuye espacio equitativamente */
+            justify-content: space-between;
             overflow: hidden; position: relative;
             -webkit-user-select: none; user-select: none;
             padding-top: env(safe-area-inset-top);
@@ -58,10 +57,9 @@
         /* --- TÍTULO --- */
         .title-container {
             z-index: 10; text-align: center; 
-            margin-top: 3vh; /* Un poco de margen arriba */
+            margin-top: 3vh; 
             animation: fadeInDown 2s ease-out; 
-            width: 90%;
-            flex-shrink: 0; /* No permitimos que el título se aplaste */
+            width: 90%; flex-shrink: 0;
         }
         .game-title {
             font-family: 'Cinzel', serif; font-size: clamp(2rem, 5vw, 4.5rem);
@@ -76,90 +74,94 @@
             font-style: italic; margin-top: 10px; text-transform: uppercase; opacity: 0.9;
         }
 
-        /* --- ROSTER DE CARTAS (Contenedor Principal) --- */
+        /* --- ROSTER DE CARTAS --- */
         .roster-container {
             display: flex; 
             justify-content: center; 
             align-items: flex-end; 
             gap: 12px; 
-            /* Altura flexible: ocupa el espacio disponible entre título y menú */
             flex-grow: 1; 
             z-index: 10; 
             perspective: 1000px;
             width: 100%;
             padding: 20px 40px;
-            
-            /* Scroll horizontal si es necesario */
             overflow-x: auto; 
-            overflow-y: visible; /* IMPORTANTE: Visible para que se vean los globos de texto */
-            
-            /* Margen inferior para no chocar con el menú */
+            overflow-y: visible; /* IMPORTANTE: Permitir que los globos salgan */
             margin-bottom: 70px; 
-            scrollbar-width: none; /* Ocultar barra en Firefox */
+            scrollbar-width: none;
         }
-        .roster-container::-webkit-scrollbar { display: none; } /* Ocultar barra en Chrome */
+        .roster-container::-webkit-scrollbar { display: none; }
 
-        /* --- LAS CARTAS --- */
+        /* --- LAS CARTAS (Contenedor Lógico) --- */
         .card {
             position: relative; 
-            width: 160px; min-width: 150px; /* Tamaño asegurado */
-            height: 60vh; /* Altura base relativa a la pantalla */
-            max-height: 400px; /* Límite máximo */
-            min-height: 250px; /* Límite mínimo */
-            
-            background: rgba(20, 20, 25, 0.4); /* Cristal semitransparente */
-            border: 1px solid rgba(139, 119, 89, 0.3);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            backdrop-filter: blur(4px); 
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            width: 160px; min-width: 150px; 
+            height: 60vh; max-height: 400px; min-height: 250px;
+            /* CRÍTICO: Overflow visible para que el globo flote fuera */
+            overflow: visible !important; 
+            background: transparent; /* El fondo va en .card-visuals */
+            border: none;
             cursor: pointer; 
-            /* NO usaremos overflow:hidden aquí para que el globo pueda salir */
-            /* En su lugar usamos border-radius o clip-path en la imagen interna */
-            display: flex; flex-direction: column;
             flex-shrink: 0;
-        }
-        
-        /* Contenedor interno para recortar la imagen pero dejar salir el globo */
-        .card-inner {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            overflow: hidden; /* Aquí sí recortamos la imagen */
-            clip-path: inherit; /* Hereda la forma de la tarjeta */
-            z-index: 1;
+            z-index: 10;
         }
 
-        /* Formas Geométricas */
-        .card:nth-child(-n+3) { clip-path: polygon(0% 20px, 100% 0%, 100% 100%, 0% 100%); border-top: 1px solid rgba(255,255,255,0.3); }
-        .card:nth-child(n+4) { clip-path: polygon(0% 0%, 100% 20px, 100% 100%, 0% 100%); border-top: 1px solid rgba(255,255,255,0.3); }
+        /* --- EL CUERPO VISUAL DE LA CARTA (Aquí aplicamos el recorte) --- */
+        .card-visuals {
+            width: 100%; height: 100%;
+            position: relative;
+            background: rgba(20, 20, 25, 0.4); 
+            border: 1px solid rgba(139, 119, 89, 0.3);
+            /* Usamos drop-shadow en lugar de box-shadow para formas recortadas */
+            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5));
+            backdrop-filter: blur(4px); 
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex; flex-direction: column;
+            overflow: hidden; /* Recorta la imagen interna */
+        }
+
+        /* Aplicamos las formas SOLO al cuerpo visual */
+        .card:nth-child(-n+3) .card-visuals { 
+            clip-path: polygon(0% 20px, 100% 0%, 100% 100%, 0% 100%); 
+            border-top: 1px solid rgba(255,255,255,0.3); 
+        }
+        .card:nth-child(n+4) .card-visuals { 
+            clip-path: polygon(0% 0%, 100% 20px, 100% 100%, 0% 100%); 
+            border-top: 1px solid rgba(255,255,255,0.3); 
+        }
         
         /* Escalas Visuales */
         .card:nth-child(1), .card:nth-child(6) { transform: scale(0.9); transform-origin: bottom; }
         .card:nth-child(2), .card:nth-child(5) { transform: scale(0.95); transform-origin: bottom; }
         .card:nth-child(3), .card:nth-child(4) { 
             transform: scale(1.0); transform-origin: bottom;
+        }
+        /* Estilos especiales para protagonistas */
+        .card:nth-child(3) .card-visuals, .card:nth-child(4) .card-visuals {
             border-color: rgba(212, 175, 55, 0.6); 
             background: rgba(30, 25, 30, 0.5); 
         }
 
         .card-img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; filter: grayscale(0.5) contrast(1.1); }
         .card-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 60%; background: linear-gradient(to top, rgba(10,5,10,0.9), transparent); pointer-events: none; z-index: 2; }
-        
-        /* Efecto Hover / Activo */
-        .card:hover, .card:active { 
-            transform: scale(1.05) translateY(-5px); 
-            z-index: 100; border-color: #ffd700; 
-            box-shadow: 0 0 25px rgba(255, 200, 100, 0.3); 
-            background: rgba(40, 30, 40, 0.8); 
-        }
-        .card:hover .card-img { filter: grayscale(0) contrast(1.05); transform: scale(1.1); }
-        
         .card-info { position: absolute; bottom: 10px; width: 100%; text-align: center; pointer-events: none; z-index: 3; }
+        
         .char-name { font-family: 'Cinzel'; font-size: 0.9rem; color: #fff; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 2px 4px #000; }
         .char-house { font-size: 0.6rem; color: #d4af37; text-transform: uppercase; letter-spacing: 1px; border-top: 1px solid rgba(212,175,55,0.3); display: inline-block; padding-top: 4px; }
+
+        /* Efecto Hover / Activo */
+        .card:hover .card-visuals, .card:active .card-visuals { 
+            border-color: #ffd700; 
+            background: rgba(40, 30, 40, 0.8); 
+            filter: drop-shadow(0 0 15px rgba(255, 200, 100, 0.4));
+        }
+        .card:hover { transform: scale(1.05) translateY(-5px); z-index: 100; }
+        .card:hover .card-img { filter: grayscale(0) contrast(1.05); transform: scale(1.1); }
 
         /* --- GLOBO DE DIÁLOGO (SPEECH BUBBLE) --- */
         .speech-bubble {
             position: absolute;
-            top: -70px; /* Posición inicial arriba de la carta */
+            top: -50px; /* Posición inicial */
             left: 50%; 
             transform: translateX(-50%) scale(0.8);
             background: rgba(250, 248, 245, 0.95);
@@ -176,7 +178,7 @@
             pointer-events: none;
             opacity: 0;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 200;
+            z-index: 200; /* Muy por encima */
         }
         /* Triángulo del globo */
         .speech-bubble::after {
@@ -189,14 +191,13 @@
         .card.talking .speech-bubble {
             opacity: 1; 
             transform: translateX(-50%) scale(1); 
-            top: -90px; /* Sube un poco al aparecer */
+            top: -80px; /* Sube y se hace visible */
         }
 
         /* --- MENÚ DE BOTONES --- */
         .vn-menu {
             position: fixed; bottom: 0; left: 0; width: 100%;
             z-index: 100; display: flex; gap: 15px; padding: 15px 20px;
-            /* Cristal Oscuro */
             background: rgba(10, 5, 10, 0.8); 
             border-top: 1px solid rgba(212, 175, 55, 0.3);
             backdrop-filter: blur(8px);
@@ -242,11 +243,6 @@
         }
         .modal-btn:hover { background: #d4af37; color: #000; }
 
-        /* --- TRANSICIÓN --- */
-        #fade-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 3000; opacity: 0; pointer-events: none; transition: opacity 2s; }
-        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
         /* --- ORIENTACIÓN --- */
         #orientation-warning {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -259,6 +255,11 @@
         #orientation-icon { font-size: 3rem; animation: rotatePhone 2s infinite ease-in-out; margin-bottom: 20px; }
         @keyframes rotatePhone { 0%, 10% { transform: rotate(0deg); } 40%, 60% { transform: rotate(90deg); } 90%, 100% { transform: rotate(0deg); } }
         @media screen and (orientation: portrait) and (max-width: 900px) { #orientation-warning { display: flex; } }
+
+        /* --- TRANSICIÓN --- */
+        #fade-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 3000; opacity: 0; pointer-events: none; transition: opacity 2s; }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
     </style>
 </head>
@@ -288,44 +289,56 @@
         
         <div class="card" onclick="playChar('konrad', this)">
             <div class="speech-bubble">...</div>
-            <div class="card-inner"><img src="Konrad.png" alt="Konrad" class="card-img"></div>
-            <div class="card-overlay"></div>
-            <div class="card-info"><div class="char-name">Konrad</div><div class="char-house">Casa Hohenstein</div></div>
+            <div class="card-visuals">
+                <img src="Konrad.png" alt="Konrad" class="card-img">
+                <div class="card-overlay"></div>
+                <div class="card-info"><div class="char-name">Konrad</div><div class="char-house">Casa Hohenstein</div></div>
+            </div>
         </div>
 
         <div class="card" onclick="playChar('friedrich', this)">
             <div class="speech-bubble">...</div>
-            <div class="card-inner"><img src="Friedrich.png" alt="Friedrich" class="card-img"></div>
-            <div class="card-overlay"></div>
-            <div class="card-info"><div class="char-name">Friedrich</div><div class="char-house">Heredero Eidehart</div></div>
+            <div class="card-visuals">
+                <img src="Friedrich.png" alt="Friedrich" class="card-img">
+                <div class="card-overlay"></div>
+                <div class="card-info"><div class="char-name">Friedrich</div><div class="char-house">Heredero Eidehart</div></div>
+            </div>
         </div>
         
         <div class="card" onclick="playChar('marianne', this)">
             <div class="speech-bubble">...</div>
-            <div class="card-inner"><img src="marianne.png" alt="Marianne" class="card-img"></div>
-            <div class="card-overlay"></div>
-            <div class="card-info"><div class="char-name">Marianne</div><div class="char-house">Lady Eidehart</div></div>
+            <div class="card-visuals">
+                <img src="marianne.png" alt="Marianne" class="card-img">
+                <div class="card-overlay"></div>
+                <div class="card-info"><div class="char-name">Marianne</div><div class="char-house">Lady Eidehart</div></div>
+            </div>
         </div>
 
         <div class="card" onclick="playChar('albert', this)">
             <div class="speech-bubble">...</div>
-            <div class="card-inner"><img src="Albert.png" alt="Albert" class="card-img"></div>
-            <div class="card-overlay"></div>
-            <div class="card-info"><div class="char-name">Albert</div><div class="char-house">Príncipe Herrington</div></div>
+            <div class="card-visuals">
+                <img src="Albert.png" alt="Albert" class="card-img">
+                <div class="card-overlay"></div>
+                <div class="card-info"><div class="char-name">Albert</div><div class="char-house">Príncipe Herrington</div></div>
+            </div>
         </div>
         
         <div class="card" onclick="playChar('alaric', this)">
             <div class="speech-bubble">...</div>
-            <div class="card-inner"><img src="Alaric.png" alt="Alaric" class="card-img"></div>
-            <div class="card-overlay"></div>
-            <div class="card-info"><div class="char-name">Alaric</div><div class="char-house">Casa Grimmwald</div></div>
+            <div class="card-visuals">
+                <img src="Alaric.png" alt="Alaric" class="card-img">
+                <div class="card-overlay"></div>
+                <div class="card-info"><div class="char-name">Alaric</div><div class="char-house">Casa Grimmwald</div></div>
+            </div>
         </div>
 
         <div class="card" onclick="playChar('kasimir', this)">
             <div class="speech-bubble">...</div>
-            <div class="card-inner"><img src="kasimir.png" alt="Kasimir" class="card-img"></div>
-            <div class="card-overlay"></div>
-            <div class="card-info"><div class="char-name">Kasimir</div><div class="char-house">Casa Bergendorf</div></div>
+            <div class="card-visuals">
+                <img src="kasimir.png" alt="Kasimir" class="card-img">
+                <div class="card-overlay"></div>
+                <div class="card-info"><div class="char-name">Kasimir</div><div class="char-house">Casa Bergendorf</div></div>
+            </div>
         </div>
     </div>
 
@@ -368,50 +381,48 @@
     <div id="fade-overlay"></div>
 
     <script>
-        // --- BASE DE DATOS DE DIÁLOGOS ---
-        // Asegúrate de tener estos archivos de audio en tu carpeta
-        // --- BASE DE DATOS DE DIÁLOGOS (FINAL V1) ---
+        // --- BASE DE DATOS DE DIÁLOGOS (OPTIMIZADA) ---
         const charData = {
-            // KONRAD: (Militar estricto y protector)
+            // KONRAD: (Militar estricto)
             konrad: [
-                { text: "La debilidad es un lujo que no podemos permitirnos.", audio: "konrad_1.mp3" },
-                { text: "No tengo tiempo para juegos.", audio: "konrad_2.mp3" },
-                { text: "No te alejes de mi vista.", audio: "konrad_3.mp3" }
+                { text: "弱さは…許されない贅沢だ。\n(Yowasa wa... yurusarenai zeitaku da.)", audio: "konrad_1.mp3" },
+                { text: "遊びに付き合う暇はない。\n(Asobi ni tsukiau hima wa nai.)", audio: "konrad_2.mp3" },
+                { text: "俺の目の届くところにいろ。\n(Ore no me no todoku tokoro ni iro.)", audio: "konrad_3.mp3" }
             ],
 
-            // FRIEDRICH: (Hermano con debilidad por la protagonista)
+            // FRIEDRICH: (Hermano devoto)
             friedrich: [
-                { text: "Protegeré el legado Eidehart.", audio: "friedrich_1.mp3" },
-                { text: "Marianne, ten cuidado por favor.", audio: "friedrich_2.mp3" },
-                { text: "Ah... Supongo que es culpa mía por haberte malcriado tanto.", audio: "friedrich_3.mp3" }
+                { text: "アイデハート家の誇りは、僕が守る。\n(Eidehart-ke no hokori wa, boku ga mamoru.)", audio: "friedrich_1.mp3" },
+                { text: "マリアンヌ、くれぐれも…気をつけておくれ。\n(Marianne, kureguremo... ki wo tsukete okure.)", audio: "friedrich_2.mp3" },
+                { text: "あぁ…お前を甘やかしすぎた、僕の罪かな。\n(Aa... Omae wo amayakashi sugita, boku no tsumi ka na.)", audio: "friedrich_3.mp3" }
             ],
 
-            // MARIANNE: (Protagonista intuitiva y dulce)
+            // MARIANNE: (Protagonista)
             marianne: [
-                { text: "¡Espero hacer muchos amigos!", audio: "marianne_1.mp3" },
-                { text: "Mmm... tengo el presentimiento de que hoy pasará algo interesante.", audio: "marianne_2.mp3" },
-                { text: "¿Crees que encajaré en la academia?", audio: "marianne_3.mp3" }
+                { text: "たくさん友達ができるといいな！\n(Takusan tomodachi ga dekiru to ii na!)", audio: "marianne_1.mp3" },
+                { text: "んー…今日は何か、面白いことが起こりそう。\n(Un... Kyou wa nanika, omoshiroi koto ga okorisou.)", audio: "marianne_2.mp3" },
+                { text: "私…うまくやっていけるかな？\n(Watashi... umaku yatte ikeru kana?)", audio: "marianne_3.mp3" }
             ],
 
-            // ALBERT: (Príncipe soberbio y posesivo)
+            // ALBERT: (Príncipe Soberbio)
             albert: [
-                { text: "Todo lo bello de este reino acaba en mis manos. Es natural.", audio: "albert_1.mp3" },
-                { text: "Siéntete honrada. Tienes toda mi atención.", audio: "albert_2.mp3" },
-                { text: "Cuando hablo contigo el peso de la corona se aligera... a este paso no podré vivir sin ti.", audio: "albert_3.mp3" }
+                { text: "この国の美しいものは、すべて俺の手に落ちる。\n(Kono kuni no utsukushii mono wa, subete ore no te ni ochiru.)", audio: "albert_1.mp3" },
+                { text: "光栄に思え。俺は…お前だけを見ている。\n(Kouei ni omoe. Ore wa... omae dake wo miteiru.)", audio: "albert_2.mp3" },
+                { text: "お前といると王冠の重みが消える…もう、お前なしでは生きられないな。\n(Omae to iru to oukan no omomi ga kieru... Mou, omae nashi de wa ikirarenai na.)", audio: "albert_3.mp3" }
             ],
 
-            // ALARIC: (Mago intelectual y arrogante)
+            // ALARIC: (Mago Intelectual)
             alaric: [
-                { text: "Silencio, estoy leyendo.", audio: "alaric_1.mp3" },
-                { text: "Mmm... eres el único enigma que no logro descifrar.", audio: "alaric_2.mp3" },
-                { text: "Podría enseñarte hechizos que harían temblar a este reino.", audio: "alaric_3.mp3" }
+                { text: "静かにしてくれ。読書中だ。\n(Shizuka ni shite kure. Dokusho-chuu da.)", audio: "alaric_1.mp3" },
+                { text: "フン…僕が解読できない謎は、君だけだ。\n(Fun... Boku ga kaidoku dekinai nazo wa, kimi dake da.)", audio: "alaric_2.mp3" },
+                { text: "この国を揺るがすほどの魔法…君に教えてやろうか。\n(Kono kuni wo yurugasu hodo no mahou... kimi ni oshiete yarou ka.)", audio: "alaric_3.mp3" }
             ],
 
-            // KASIMIR: (Nuevo noble, comerciante cínico)
+            // KASIMIR: (Comerciante Rico)
             kasimir: [
-                { text: "No me hagas perder el tiempo. Mi tiempo vale oro.", audio: "kasimir_1.mp3" },
-                { text: "En este mundo, todo tiene un precio. ¿Cuál es el tuyo?", audio: "kasimir_2.mp3" },
-                { text: "He tenido las joyas más raras entre mis manos... pero ninguna me hipnotiza como tus ojos.", audio: "kasimir_3.mp3" }
+                { text: "俺の時間を無駄にするな。時は金なり、だ。\n(Ore no jikan wo muda ni suru na. Toki wa kane nari, da.)", audio: "kasimir_1.mp3" },
+                { text: "この世の全てには値段がある。…お前はいくらだ？\n(Kono yo no subete ni wa nedan ga aru. ...Omae wa ikura da?)", audio: "kasimir_2.mp3" },
+                { text: "どんな希少な宝石も手にしてきたが…お前の瞳ほど、魅力的なものはない。\n(Donna kishou na houseki mo te ni shite kita ga... Omae no hitomi hodo, miryoku-teki na mono wa nai.)", audio: "kasimir_3.mp3" }
             ]
         };
 
@@ -450,13 +461,15 @@
             const bubble = cardElement.querySelector('.speech-bubble');
             if(bubble) {
                 bubble.textContent = data.text;
+                // Pequeño hack para permitir saltos de línea (\n)
+                bubble.innerHTML = data.text.replace(/\n/g, '<br>');
+                
                 cardElement.classList.add('talking');
 
-                // Timer para ocultar
                 if(currentBubble) clearTimeout(currentBubble);
                 currentBubble = setTimeout(() => {
                     cardElement.classList.remove('talking');
-                }, 3500); // 3.5 segundos visible
+                }, 4000); // 4 segundos para leer mejor
             }
 
             // 3. Reproducir Audio
