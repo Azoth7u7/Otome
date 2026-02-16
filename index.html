@@ -13,7 +13,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            /* Usamos 100dvh para móviles modernos */
             height: 100vh; height: 100dvh; 
             width: 100vw;
             background: #0b0d14;
@@ -25,7 +24,7 @@
             overflow: hidden; position: relative;
             -webkit-user-select: none; user-select: none;
             padding-top: env(safe-area-inset-top);
-            padding-bottom: env(safe-area-inset-bottom);
+            padding-bottom: calc(env(safe-area-inset-bottom) + 80px); /* Espacio dinámico para el menú */
         }
 
         /* --- FONDO --- */
@@ -63,7 +62,7 @@
             width: 90%; flex-shrink: 0;
         }
         .game-title {
-            font-family: 'Cinzel', serif; font-size: clamp(1.8rem, 5vw, 4.5rem);
+            font-family: 'Cinzel', serif; font-size: clamp(2rem, 5vw, 4.5rem);
             line-height: 1;
             background: linear-gradient(to bottom, #fff0f5, #d4af37);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -71,68 +70,63 @@
             text-transform: uppercase; letter-spacing: 4px;
         }
         .game-tagline {
-            font-size: clamp(0.7rem, 2vw, 1.2rem); color: #e0c0c0; letter-spacing: 4px;
+            font-size: clamp(0.8rem, 2vw, 1.2rem); color: #e0c0c0; letter-spacing: 4px;
             font-style: italic; margin-top: 10px; text-transform: uppercase; opacity: 0.9;
         }
 
-        /* --- ROSTER DE CARTAS (RESPONSIVE FIX) --- */
+        /* --- ROSTER DE CARTAS --- */
         .roster-container {
             display: flex; 
-            justify-content: center; /* Centrado en escritorio */
-            align-items: flex-end; /* Alineado abajo */
-            gap: 15px; 
+            justify-content: center; 
+            align-items: flex-end; 
+            gap: 12px; 
             flex-grow: 1; 
             z-index: 10; 
             perspective: 1000px;
             width: 100%;
             padding: 20px 40px;
-            
-            /* Scroll Horizontal Vital */
             overflow-x: auto; 
-            overflow-y: visible; /* Permitir ver los globos */
-            
-            /* Ajuste de margen inferior para no chocar con menú */
-            margin-bottom: 70px; 
-            scrollbar-width: none; /* Firefox */
-            
-            /* Comportamiento de Scroll */
-            -webkit-overflow-scrolling: touch;
-            scroll-snap-type: x mandatory;
+            overflow-y: visible; 
+            scrollbar-width: none;
+            margin-bottom: 0;
         }
-        .roster-container::-webkit-scrollbar { display: none; } /* Chrome */
+        .roster-container::-webkit-scrollbar { display: none; }
 
-        /* Ajuste para móviles: Alineación izquierda para permitir scroll */
+        /* En móviles, cambiamos la alineación para permitir scroll horizontal */
         @media (max-width: 900px) {
             .roster-container {
-                justify-content: flex-start; /* Permite scroll desde el inicio */
-                padding: 20px 20px; /* Menos padding */
-                margin-bottom: 80px; /* Más espacio para el menú */
-            }
-            /* Espaciador al final para poder ver la última carta bien */
-            .roster-container::after {
-                content: ''; min-width: 20px; height: 1px; display: block;
+                justify-content: flex-start;
+                padding: 20px 20px;
+                align-items: center; /* Centramos verticalmente las cartas */
             }
         }
 
         /* --- LAS CARTAS --- */
         .card {
             position: relative; 
-            width: 160px; min-width: 150px; 
-            /* Altura dinámica basada en viewport pero con límites */
-            height: 55vh; max-height: 400px; min-height: 280px;
-            
+            width: 160px; 
+            min-width: 150px; 
+            aspect-ratio: 2 / 3; /* Mantiene la proporción (ajusta si tus imágenes son distintas) */
+            height: auto;
+            max-height: 400px; 
             overflow: visible !important; 
             background: transparent; 
             border: none;
             cursor: pointer; 
             flex-shrink: 0;
             z-index: 10;
-            
-            /* Snap para móviles */
-            scroll-snap-align: center;
+            transition: transform 0.3s ease;
         }
 
-        /* --- CUERPO VISUAL --- */
+        /* En móviles reducimos el ancho pero mantenemos la proporción */
+        @media (max-width: 600px) {
+            .card {
+                min-width: 110px;
+                width: 120px;
+                max-height: 350px;
+            }
+        }
+
         .card-visuals {
             width: 100%; height: 100%;
             position: relative;
@@ -145,7 +139,6 @@
             overflow: hidden; 
         }
 
-        /* Formas Recortadas */
         .card:nth-child(-n+3) .card-visuals { 
             clip-path: polygon(0% 20px, 100% 0%, 100% 100%, 0% 100%); 
             border-top: 1px solid rgba(255,255,255,0.3); 
@@ -155,42 +148,35 @@
             border-top: 1px solid rgba(255,255,255,0.3); 
         }
         
-        /* Escalas Visuales (Sutiles) */
-        .card:nth-child(1), .card:nth-child(6) { transform: scale(0.95); transform-origin: bottom; }
-        .card:nth-child(2), .card:nth-child(5) { transform: scale(0.98); transform-origin: bottom; }
+        .card:nth-child(1), .card:nth-child(6) { transform: scale(0.9); transform-origin: bottom; }
+        .card:nth-child(2), .card:nth-child(5) { transform: scale(0.95); transform-origin: bottom; }
         .card:nth-child(3), .card:nth-child(4) { transform: scale(1.0); transform-origin: bottom; }
-        
-        /* Highlight protagonistas */
         .card:nth-child(3) .card-visuals, .card:nth-child(4) .card-visuals {
             border-color: rgba(212, 175, 55, 0.6); 
             background: rgba(30, 25, 30, 0.5); 
         }
 
-        .card-img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; filter: grayscale(0.5) contrast(1.1); }
+        .card-img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            object-position: top 20%; /* Enfoca la parte superior (cara) */
+            transition: 0.5s; 
+            filter: grayscale(0.5) contrast(1.1); 
+        }
         .card-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 60%; background: linear-gradient(to top, rgba(10,5,10,0.9), transparent); pointer-events: none; z-index: 2; }
         .card-info { position: absolute; bottom: 10px; width: 100%; text-align: center; pointer-events: none; z-index: 3; }
         
         .char-name { font-family: 'Cinzel'; font-size: 0.9rem; color: #fff; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 2px 4px #000; }
         .char-house { font-size: 0.6rem; color: #d4af37; text-transform: uppercase; letter-spacing: 1px; border-top: 1px solid rgba(212,175,55,0.3); display: inline-block; padding-top: 4px; }
 
-        /* Hover solo en dispositivos no táctiles para evitar glitches */
-        @media (hover: hover) {
-            .card:hover .card-visuals { 
-                border-color: #ffd700; 
-                background: rgba(40, 30, 40, 0.8); 
-                filter: drop-shadow(0 0 15px rgba(255, 200, 100, 0.4));
-            }
-            .card:hover { transform: scale(1.05) translateY(-5px); z-index: 100; }
-            .card:hover .card-img { filter: grayscale(0) contrast(1.05); transform: scale(1.1); }
-        }
-        /* Estado activo para móviles */
-        .card.talking .card-visuals {
+        .card:hover .card-visuals, .card:active .card-visuals { 
             border-color: #ffd700; 
-            background: rgba(40, 30, 40, 0.8);
+            background: rgba(40, 30, 40, 0.8); 
             filter: drop-shadow(0 0 15px rgba(255, 200, 100, 0.4));
         }
-        .card.talking .card-img { filter: grayscale(0) contrast(1.05); transform: scale(1.05); }
-
+        .card:hover { transform: scale(1.05) translateY(-5px); z-index: 100; }
+        .card:hover .card-img { filter: grayscale(0) contrast(1.05); transform: scale(1.1); }
 
         /* --- GLOBO DE DIÁLOGO (LATERAL INTELIGENTE) --- */
         .speech-bubble {
@@ -199,11 +185,11 @@
             width: 180px;
             background: rgba(250, 248, 245, 0.95);
             color: #1a1015;
-            padding: 12px;
+            padding: 10px;
             border-radius: 8px;
             border: 2px solid #d4af37;
             font-family: 'Lato', sans-serif;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: bold;
             text-align: left;
             box-shadow: 0 5px 20px rgba(0,0,0,0.6);
@@ -213,7 +199,7 @@
             z-index: 500;
         }
 
-        /* LOGICA: Cartas 1, 2, 3 -> Globo a la DERECHA */
+        /* GLOBOS IZQUIERDA (Cartas 1-3) -> Muestran a la derecha */
         .card:nth-child(-n+3) .speech-bubble {
             left: 105%; 
             transform: translateX(-10px); 
@@ -225,7 +211,7 @@
             border-color: transparent #d4af37 transparent transparent;
         }
 
-        /* LOGICA: Cartas 4, 5, 6 -> Globo a la IZQUIERDA */
+        /* GLOBOS DERECHA (Cartas 4-6) -> Muestran a la izquierda */
         .card:nth-child(n+4) .speech-bubble {
             right: 105%; 
             transform: translateX(10px); 
@@ -237,67 +223,67 @@
             border-color: transparent transparent transparent #d4af37;
         }
 
-        /* Responsive para Globos en Móviles (Pantallas estrechas) */
-        @media (max-width: 768px) {
+        /* Ajustes para móviles: globos más pequeños y recolocados si es necesario */
+        @media (max-width: 600px) {
             .speech-bubble {
-                width: 150px;
-                font-size: 0.75rem;
-                top: auto;
-                bottom: 110%; /* Lo forzamos arriba si no cabe al lado */
-                left: 50% !important;
-                right: auto !important;
-                transform: translateX(-50%) translateY(10px) !important;
+                width: 140px;
+                font-size: 0.7rem;
+                padding: 8px;
+                top: 10%;
             }
-            /* Sobrescribimos flechas para que apunten abajo */
-            .card:nth-child(n) .speech-bubble::after {
+            /* En pantallas muy pequeñas, forzamos que los globos se muestren arriba de la carta */
+            .card:nth-child(-n+3) .speech-bubble,
+            .card:nth-child(n+4) .speech-bubble {
+                left: 50%;
+                right: auto;
+                top: -30px;
+                transform: translateX(-50%) translateY(-100%);
+            }
+            .card:nth-child(-n+3) .speech-bubble::after,
+            .card:nth-child(n+4) .speech-bubble::after {
                 top: auto;
                 bottom: -8px;
                 left: 50%;
-                margin-left: -8px;
+                transform: translateX(-50%);
                 border-width: 8px 8px 0 8px;
                 border-color: #d4af37 transparent transparent transparent;
-                right: auto;
-            }
-            
-            /* Animación Móvil */
-            .card.talking .speech-bubble {
-                transform: translateX(-50%) translateY(0) !important;
             }
         }
 
-        /* Animación Desktop */
-        @media (min-width: 769px) {
+        /* Animación */
+        .card.talking .speech-bubble {
+            opacity: 1; 
+            transform: translateX(0); 
+        }
+        @media (max-width: 600px) {
             .card.talking .speech-bubble {
-                opacity: 1; 
-                transform: translateX(0); 
+                transform: translateX(-50%) translateY(-100%);
             }
         }
-        /* Fix opacidad general */
-        .card.talking .speech-bubble { opacity: 1; }
 
-
-        /* --- MENÚ DE BOTONES --- */
+        /* --- MENÚ DE BOTONES (FIJO) --- */
         .vn-menu {
             position: fixed; bottom: 0; left: 0; width: 100%;
-            z-index: 600; display: flex; gap: 15px; padding: 15px 20px;
-            background: rgba(10, 5, 10, 0.85); 
+            z-index: 100; display: flex; gap: 15px; padding: 15px 20px;
+            background: rgba(10, 5, 10, 0.8); 
             border-top: 1px solid rgba(212, 175, 55, 0.3);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(8px);
             animation: fadeInUp 1.5s ease-out;
             justify-content: center; flex-wrap: wrap; 
+            pointer-events: auto;
         }
         .menu-btn {
             background: transparent; border: none; color: #ccc;
             font-family: 'Cinzel', serif; font-size: 1rem;
-            padding: 8px 15px; cursor: pointer; transition: 0.3s;
+            padding: 5px 15px; cursor: pointer; transition: 0.3s;
             text-transform: uppercase; letter-spacing: 2px;
+            -webkit-tap-highlight-color: transparent;
         }
         .menu-btn:hover, .menu-btn:active { color: #d4af37; text-shadow: 0 0 10px rgba(212, 175, 55, 0.7); transform: scale(1.1); }
 
-        /* Ajuste menú móvil */
-        @media (max-width: 600px) {
-            .vn-menu { gap: 5px; padding: 10px 5px; justify-content: space-around; }
-            .menu-btn { font-size: 0.8rem; padding: 5px 8px; letter-spacing: 1px; }
+        @media (max-width: 480px) {
+            .vn-menu { gap: 8px; padding: 10px; }
+            .menu-btn { font-size: 0.85rem; padding: 5px 8px; }
         }
 
         /* --- MODALES --- */
@@ -342,11 +328,7 @@
         #orientation-warning p { font-family: 'Lato'; color: #888; }
         #orientation-icon { font-size: 3rem; animation: rotatePhone 2s infinite ease-in-out; margin-bottom: 20px; }
         @keyframes rotatePhone { 0%, 10% { transform: rotate(0deg); } 40%, 60% { transform: rotate(90deg); } 90%, 100% { transform: rotate(0deg); } }
-        
-        /* Solo mostrar advertencia en móviles verticales muy estrechos */
-        @media screen and (orientation: portrait) and (max-width: 500px) { 
-            #orientation-warning { display: flex; } 
-        }
+        @media screen and (orientation: portrait) and (max-width: 900px) { #orientation-warning { display: flex; } }
 
         /* --- TRANSICIÓN --- */
         #fade-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 3000; opacity: 0; pointer-events: none; transition: opacity 2s; }
@@ -374,7 +356,7 @@
 
     <div class="title-container">
         <h1 class="game-title">El Jardín de las Rosas<br>y las Espinas</h1>
-        <div class="game-tagline">Entre el amor y el deber</div>
+        <div class="game-tagline">Donde tus sueños florecen</div>
     </div>
 
     <div class="roster-container">
