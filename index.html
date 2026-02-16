@@ -24,7 +24,7 @@
             overflow: hidden; position: relative;
             -webkit-user-select: none; user-select: none;
             padding-top: env(safe-area-inset-top);
-            padding-bottom: env(safe-area-inset-bottom);
+            padding-bottom: 80px; /* Espacio para el menú fijo */
         }
 
         /* --- FONDO --- */
@@ -87,8 +87,9 @@
             padding: 20px 40px;
             overflow-x: auto; 
             overflow-y: visible; 
-            margin-bottom: 70px; 
             scrollbar-width: none;
+            /* Aseguramos que el contenido no quede detrás del menú */
+            margin-bottom: 0;
         }
         .roster-container::-webkit-scrollbar { display: none; }
 
@@ -96,13 +97,24 @@
         .card {
             position: relative; 
             width: 160px; min-width: 150px; 
-            height: 60vh; max-height: 400px; min-height: 250px;
+            height: clamp(200px, 50vh, 400px); /* Altura flexible */
+            max-height: 400px; 
             overflow: visible !important; 
             background: transparent; 
             border: none;
             cursor: pointer; 
             flex-shrink: 0;
             z-index: 10;
+            transition: transform 0.3s ease;
+        }
+
+        /* En móviles reducimos el ancho mínimo */
+        @media (max-width: 600px) {
+            .card {
+                min-width: 120px;
+                width: 130px;
+                height: clamp(180px, 45vh, 350px);
+            }
         }
 
         .card-visuals {
@@ -194,13 +206,62 @@
             border-color: transparent transparent transparent #d4af37;
         }
 
+        /* Ajustes para móviles: globos más pequeños y recolocados si es necesario */
+        @media (max-width: 600px) {
+            .speech-bubble {
+                width: 140px;
+                font-size: 0.7rem;
+                padding: 8px;
+                top: 10%; /* Un poco más arriba para evitar bordes */
+            }
+            /* En pantallas muy pequeñas, forzamos que los globos se muestren arriba de la carta */
+            .card:nth-child(-n+3) .speech-bubble {
+                left: auto;
+                right: auto;
+                top: -30px;
+                transform: translateY(-100%);
+                left: 50%;
+                transform: translateX(-50%) translateY(-100%);
+            }
+            .card:nth-child(-n+3) .speech-bubble::after {
+                top: auto;
+                bottom: -8px;
+                left: 50%;
+                transform: translateX(-50%);
+                border-width: 8px 8px 0 8px;
+                border-color: #d4af37 transparent transparent transparent;
+            }
+            .card:nth-child(n+4) .speech-bubble {
+                left: auto;
+                right: auto;
+                top: -30px;
+                transform: translateY(-100%);
+                left: 50%;
+                transform: translateX(-50%) translateY(-100%);
+            }
+            .card:nth-child(n+4) .speech-bubble::after {
+                top: auto;
+                bottom: -8px;
+                left: 50%;
+                transform: translateX(-50%);
+                border-width: 8px 8px 0 8px;
+                border-color: #d4af37 transparent transparent transparent;
+            }
+        }
+
         /* Animación */
         .card.talking .speech-bubble {
             opacity: 1; 
             transform: translateX(0); 
         }
+        /* En móviles, ajustamos la animación para los globos centrados */
+        @media (max-width: 600px) {
+            .card.talking .speech-bubble {
+                transform: translateX(-50%) translateY(-100%);
+            }
+        }
 
-        /* --- MENÚ DE BOTONES --- */
+        /* --- MENÚ DE BOTONES (FIJO) --- */
         .vn-menu {
             position: fixed; bottom: 0; left: 0; width: 100%;
             z-index: 100; display: flex; gap: 15px; padding: 15px 20px;
@@ -209,14 +270,23 @@
             backdrop-filter: blur(8px);
             animation: fadeInUp 1.5s ease-out;
             justify-content: center; flex-wrap: wrap; 
+            /* Aseguramos que esté sobre el contenido pero no lo tape gracias al padding-bottom del body */
+            pointer-events: auto;
         }
         .menu-btn {
             background: transparent; border: none; color: #ccc;
             font-family: 'Cinzel', serif; font-size: 1rem;
             padding: 5px 15px; cursor: pointer; transition: 0.3s;
             text-transform: uppercase; letter-spacing: 2px;
+            -webkit-tap-highlight-color: transparent;
         }
         .menu-btn:hover, .menu-btn:active { color: #d4af37; text-shadow: 0 0 10px rgba(212, 175, 55, 0.7); transform: scale(1.1); }
+
+        /* Ajuste para móviles muy pequeños: botones más compactos */
+        @media (max-width: 480px) {
+            .vn-menu { gap: 8px; padding: 10px; }
+            .menu-btn { font-size: 0.85rem; padding: 5px 8px; }
+        }
 
         /* --- MODALES --- */
         .modal-overlay {
