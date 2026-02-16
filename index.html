@@ -86,13 +86,13 @@
             width: 100%;
             padding: 20px 40px;
             overflow-x: auto; 
-            overflow-y: visible; /* IMPORTANTE */
+            overflow-y: visible; 
             margin-bottom: 70px; 
             scrollbar-width: none;
         }
         .roster-container::-webkit-scrollbar { display: none; }
 
-        /* --- LAS CARTAS (Contenedor Lógico) --- */
+        /* --- LAS CARTAS --- */
         .card {
             position: relative; 
             width: 160px; min-width: 150px; 
@@ -105,7 +105,6 @@
             z-index: 10;
         }
 
-        /* --- CUERPO VISUAL DE LA CARTA --- */
         .card-visuals {
             width: 100%; height: 100%;
             position: relative;
@@ -152,47 +151,59 @@
         .card:hover { transform: scale(1.05) translateY(-5px); z-index: 100; }
         .card:hover .card-img { filter: grayscale(0) contrast(1.05); transform: scale(1.1); }
 
-        /* --- GLOBO DE DIÁLOGO (ABAJO) --- */
+        /* --- GLOBO DE DIÁLOGO (LATERAL INTELIGENTE) --- */
         .speech-bubble {
             position: absolute;
-            /* CAMBIO: Ubicación inferior para que no tape el título */
-            bottom: -40px; 
-            left: 50%; 
-            transform: translateX(-50%) scale(0.8);
+            top: 15%; /* Un poco abajo del borde superior */
+            width: 180px;
             background: rgba(250, 248, 245, 0.95);
             color: #1a1015;
-            padding: 12px 15px;
+            padding: 10px;
             border-radius: 8px;
             border: 2px solid #d4af37;
             font-family: 'Lato', sans-serif;
             font-size: 0.8rem;
             font-weight: bold;
-            width: 200px; 
-            text-align: center;
+            text-align: left;
             box-shadow: 0 5px 20px rgba(0,0,0,0.6);
             pointer-events: none;
             opacity: 0;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            /* Z-Index extremo para aparecer SOBRE el menú */
-            z-index: 500; 
-        }
-        
-        /* Triángulo del globo (Apuntando hacia ARRIBA) */
-        .speech-bubble::after {
-            content: ''; 
-            position: absolute; 
-            top: -8px; /* Triángulo arriba */
-            left: 50%; margin-left: -8px;
-            border-width: 0 8px 8px 8px; /* Apunta arriba */
-            border-style: solid;
-            border-color: transparent transparent #d4af37 transparent; /* Color abajo */
+            transition: all 0.3s ease;
+            z-index: 500;
         }
 
-        /* Animación para mostrar el globo */
+        /* --- LOGICA IZQUIERDA / DERECHA --- */
+        
+        /* Cartas 1, 2, 3: Globo a la DERECHA */
+        .card:nth-child(-n+3) .speech-bubble {
+            left: 105%; /* Justo a la derecha de la carta */
+            transform: translateX(-10px); /* Estado inicial para animación */
+        }
+        /* Flecha apuntando a la izquierda */
+        .card:nth-child(-n+3) .speech-bubble::after {
+            content: ''; position: absolute; 
+            top: 20px; left: -8px;
+            border-width: 8px 8px 8px 0; border-style: solid;
+            border-color: transparent #d4af37 transparent transparent;
+        }
+
+        /* Cartas 4, 5, 6: Globo a la IZQUIERDA */
+        .card:nth-child(n+4) .speech-bubble {
+            right: 105%; /* Justo a la izquierda de la carta */
+            transform: translateX(10px); /* Estado inicial para animación */
+        }
+        /* Flecha apuntando a la derecha */
+        .card:nth-child(n+4) .speech-bubble::after {
+            content: ''; position: absolute; 
+            top: 20px; right: -8px;
+            border-width: 8px 0 8px 8px; border-style: solid;
+            border-color: transparent transparent transparent #d4af37;
+        }
+
+        /* Animación Activa */
         .card.talking .speech-bubble {
             opacity: 1; 
-            transform: translateX(-50%) scale(1); 
-            bottom: -95px; /* Baja y se hace visible */
+            transform: translateX(0); /* Se mueve a su posición final */
         }
 
         /* --- MENÚ DE BOTONES --- */
@@ -384,42 +395,37 @@
     <script>
         // --- BASE DE DATOS DE DIÁLOGOS (OPTIMIZADA) ---
         const charData = {
-            // KONRAD: (Militar estricto)
+            // KONRAD
             konrad: [
                 { text: "弱さは…許されない贅沢だ。\n(Yowasa wa... yurusarenai zeitaku da.)", audio: "konrad_1.mp3" },
                 { text: "遊びに付き合う暇はない。\n(Asobi ni tsukiau hima wa nai.)", audio: "konrad_2.mp3" },
                 { text: "俺の目の届くところにいろ。\n(Ore no me no todoku tokoro ni iro.)", audio: "konrad_3.mp3" }
             ],
-
-            // FRIEDRICH: (Hermano devoto)
+            // FRIEDRICH
             friedrich: [
                 { text: "アイデハート家の誇りは、僕が守る。\n(Eidehart-ke no hokori wa, boku ga mamoru.)", audio: "friedrich_1.mp3" },
                 { text: "マリアンヌ、くれぐれも…気をつけておくれ。\n(Marianne, kureguremo... ki wo tsukete okure.)", audio: "friedrich_2.mp3" },
                 { text: "あぁ…お前を甘やかしすぎた、僕の罪かな。\n(Aa... Omae wo amayakashi sugita, boku no tsumi ka na.)", audio: "friedrich_3.mp3" }
             ],
-
-            // MARIANNE: (Protagonista)
+            // MARIANNE
             marianne: [
                 { text: "たくさん友達ができるといいな！\n(Takusan tomodachi ga dekiru to ii na!)", audio: "marianne_1.mp3" },
                 { text: "んー…今日は何か、面白いことが起こりそう。\n(Un... Kyou wa nanika, omoshiroi koto ga okorisou.)", audio: "marianne_2.mp3" },
                 { text: "私…うまくやっていけるかな？\n(Watashi... umaku yatte ikeru kana?)", audio: "marianne_3.mp3" }
             ],
-
-            // ALBERT: (Príncipe Soberbio)
+            // ALBERT
             albert: [
                 { text: "この国の美しいものは、すべて俺の手に落ちる。\n(Kono kuni no utsukushii mono wa, subete ore no te ni ochiru.)", audio: "albert_1.mp3" },
                 { text: "光栄に思え。俺は…お前だけを見ている。\n(Kouei ni omoe. Ore wa... omae dake wo miteiru.)", audio: "albert_2.mp3" },
                 { text: "お前といると王冠の重みが消える…もう、お前なしでは生きられないな。\n(Omae to iru to oukan no omomi ga kieru... Mou, omae nashi de wa ikirarenai na.)", audio: "albert_3.mp3" }
             ],
-
-            // ALARIC: (Mago Intelectual)
+            // ALARIC
             alaric: [
                 { text: "静かにしてくれ。読書中だ。\n(Shizuka ni shite kure. Dokusho-chuu da.)", audio: "alaric_1.mp3" },
                 { text: "フン…僕が解読できない謎は、君だけだ。\n(Fun... Boku ga kaidoku dekinai nazo wa, kimi dake da.)", audio: "alaric_2.mp3" },
                 { text: "この国を揺るがすほどの魔法…君に教えてやろうか。\n(Kono kuni wo yurugasu hodo no mahou... kimi ni oshiete yarou ka.)", audio: "alaric_3.mp3" }
             ],
-
-            // KASIMIR: (Comerciante Rico)
+            // KASIMIR
             kasimir: [
                 { text: "俺の時間を無駄にするな。時は金なり、だ。\n(Ore no jikan wo muda ni suru na. Toki wa kane nari, da.)", audio: "kasimir_1.mp3" },
                 { text: "この世の全てには値段がある。…お前はいくらだ？\n(Kono yo no subete ni wa nedan ga aru. ...Omae wa ikura da?)", audio: "kasimir_2.mp3" },
