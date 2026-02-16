@@ -74,12 +74,12 @@
             font-style: italic; margin-top: 10px; text-transform: uppercase; opacity: 0.9;
         }
 
-        /* --- ROSTER DE CARTAS --- */
+        /* --- ROSTER DE CARTAS (GALERÍA PREMIUM) --- */
         .roster-container {
             display: flex; 
             justify-content: center; 
             align-items: flex-end; 
-            gap: 15px; 
+            gap: 20px; 
             flex-grow: 1; 
             z-index: 10; 
             perspective: 1000px;
@@ -88,23 +88,22 @@
             
             overflow-x: auto; 
             overflow-y: visible; 
-            
             margin-bottom: 70px; 
             scrollbar-width: none; 
-            -webkit-overflow-scrolling: touch;
-            scroll-snap-type: x mandatory;
+            
+            /* Magia para móvil: Scroll suave e imantado */
+            scroll-snap-type: x mandatory; 
+            scroll-padding: 0 50%; /* Ayuda a centrar */
         }
         .roster-container::-webkit-scrollbar { display: none; } 
 
-        /* Ajuste para móviles/Tablets */
+        /* Ajuste Móvil: Centrado visual */
         @media (max-width: 900px) {
             .roster-container {
                 justify-content: flex-start; 
-                padding: 20px 20px; 
+                padding: 0 25vw; /* Espacio lateral para poder centrar la primera y ultima carta */
+                gap: 15px;
                 margin-bottom: 80px; 
-            }
-            .roster-container::after {
-                content: ''; min-width: 20px; height: 1px; display: block;
             }
         }
 
@@ -119,19 +118,20 @@
             cursor: pointer; 
             flex-shrink: 0;
             z-index: 10;
-            scroll-snap-align: center;
-            transition: z-index 0s; /* Instantáneo */
+            
+            /* El punto de imán */
+            scroll-snap-align: center; 
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), z-index 0s;
         }
 
-        /* --- ARREGLO CRÍTICO DE CAPAS (Z-INDEX) --- */
-        /* Esto asegura que la carta que habla siempre esté ENCIMA de las demás */
-        .card.talking {
-            z-index: 1000 !important;
+        /* En móvil las hacemos un pelín más pequeñas */
+        @media (max-width: 600px) {
+            .card { min-width: 140px; }
         }
-        /* También al pasar el mouse */
-        .card:hover {
-            z-index: 1000 !important;
-        }
+
+        /* --- Z-INDEX FIX --- */
+        .card.talking { z-index: 1000 !important; }
+        .card:hover { z-index: 100 !important; }
 
         /* --- CUERPO VISUAL --- */
         .card-visuals {
@@ -139,13 +139,14 @@
             position: relative;
             background: rgba(20, 20, 25, 0.4); 
             border: 1px solid rgba(139, 119, 89, 0.3);
-            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5));
+            filter: drop-shadow(0 15px 25px rgba(0,0,0,0.6)); /* Sombra más dramática */
             backdrop-filter: blur(4px); 
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             display: flex; flex-direction: column;
             overflow: hidden; 
         }
 
+        /* Formas */
         .card:nth-child(-n+3) .card-visuals { 
             clip-path: polygon(0% 20px, 100% 0%, 100% 100%, 0% 100%); 
             border-top: 1px solid rgba(255,255,255,0.3); 
@@ -155,6 +156,7 @@
             border-top: 1px solid rgba(255,255,255,0.3); 
         }
         
+        /* Escalas */
         .card:nth-child(1), .card:nth-child(6) { transform: scale(0.95); transform-origin: bottom; }
         .card:nth-child(2), .card:nth-child(5) { transform: scale(0.98); transform-origin: bottom; }
         .card:nth-child(3), .card:nth-child(4) { transform: scale(1.0); transform-origin: bottom; }
@@ -165,7 +167,7 @@
         }
 
         .card-img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; filter: grayscale(0.5) contrast(1.1); }
-        .card-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 60%; background: linear-gradient(to top, rgba(10,5,10,0.9), transparent); pointer-events: none; z-index: 2; }
+        .card-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 60%; background: linear-gradient(to top, rgba(10,5,10,0.95), transparent); pointer-events: none; z-index: 2; }
         .card-info { position: absolute; bottom: 10px; width: 100%; text-align: center; pointer-events: none; z-index: 3; }
         
         .char-name { font-family: 'Cinzel'; font-size: 0.9rem; color: #fff; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 2px 4px #000; }
@@ -175,124 +177,146 @@
             .card:hover .card-visuals { 
                 border-color: #ffd700; 
                 background: rgba(40, 30, 40, 0.8); 
-                filter: drop-shadow(0 0 15px rgba(255, 200, 100, 0.4));
+                filter: drop-shadow(0 0 20px rgba(255, 200, 100, 0.3));
             }
-            .card:hover { transform: scale(1.05) translateY(-5px); } 
+            .card:hover { transform: scale(1.05) translateY(-10px); } 
             .card:hover .card-img { filter: grayscale(0) contrast(1.05); transform: scale(1.1); }
         }
         
         .card.talking .card-visuals {
             border-color: #ffd700; 
             background: rgba(40, 30, 40, 0.8);
-            filter: drop-shadow(0 0 15px rgba(255, 200, 100, 0.4));
+            filter: drop-shadow(0 0 25px rgba(255, 200, 100, 0.4));
         }
         .card.talking .card-img { filter: grayscale(0) contrast(1.05); transform: scale(1.05); }
 
 
-        /* --- GLOBO DE DIÁLOGO --- */
+        /* --- GLOBO DE DIÁLOGO "CRISTAL" (GLASSMORPHISM) --- */
         .speech-bubble {
             position: absolute;
-            top: 20%; 
-            width: 180px;
-            background: rgba(250, 248, 245, 0.95);
-            color: #1a1015;
-            padding: 12px;
-            border-radius: 8px;
-            border: 2px solid #d4af37;
+            top: 25%; 
+            width: 200px;
+            
+            /* ESTÉTICA CRISTAL */
+            background: rgba(20, 15, 20, 0.75); /* Fondo oscuro semitransparente */
+            backdrop-filter: blur(10px); /* El efecto de desenfoque */
+            -webkit-backdrop-filter: blur(10px); /* Para Safari */
+            border: 1px solid rgba(212, 175, 55, 0.4); /* Borde dorado sutil */
+            border-top: 1px solid rgba(255, 255, 255, 0.2); /* Brillo superior */
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5); /* Sombra profunda */
+            
+            color: #fff; /* Texto blanco */
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            padding: 15px;
+            border-radius: 12px; /* Más redondeado */
+            
             font-family: 'Lato', sans-serif;
             font-size: 0.85rem;
-            font-weight: bold;
+            font-weight: 400; /* Letra más fina y elegante */
+            letter-spacing: 0.5px;
+            line-height: 1.4;
+            
             text-align: left;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.6);
             pointer-events: none;
             opacity: 0;
-            transition: all 0.3s ease;
-            z-index: 2000; /* Aseguramos que el globo esté encima de todo */
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 2000; 
         }
 
-        /* Cartas 1-3 -> Derecha */
+        /* Flechas del globo (adaptadas al color oscuro) */
+        
+        /* 1-3 DERECHA */
         .card:nth-child(-n+3) .speech-bubble {
-            left: 105%; 
-            transform: translateX(-10px); 
+            left: 105%; transform: translateX(-20px) scale(0.9); 
         }
         .card:nth-child(-n+3) .speech-bubble::after {
-            content: ''; position: absolute; 
-            top: 15px; left: -8px;
+            content: ''; position: absolute; top: 20px; left: -8px;
             border-width: 8px 8px 8px 0; border-style: solid;
-            border-color: transparent #d4af37 transparent transparent;
+            border-color: transparent rgba(212, 175, 55, 0.4) transparent transparent; /* Dorado transparente */
         }
 
-        /* Cartas 4-6 -> Izquierda */
+        /* 4-6 IZQUIERDA */
         .card:nth-child(n+4) .speech-bubble {
-            right: 105%; 
-            transform: translateX(10px); 
+            right: 105%; transform: translateX(20px) scale(0.9); 
         }
         .card:nth-child(n+4) .speech-bubble::after {
-            content: ''; position: absolute; 
-            top: 15px; right: -8px;
+            content: ''; position: absolute; top: 20px; right: -8px;
             border-width: 8px 0 8px 8px; border-style: solid;
-            border-color: transparent transparent transparent #d4af37;
+            border-color: transparent transparent transparent rgba(212, 175, 55, 0.4);
         }
 
-        /* Responsive Móvil Estrecho */
+        /* MÓVIL ESTRECHO: Globos abajo (para no tapar caras ni salir de pantalla) */
         @media (max-width: 768px) {
             .speech-bubble {
-                width: 150px;
-                font-size: 0.75rem;
+                width: 180px;
+                font-size: 0.8rem;
                 top: auto;
-                bottom: 110%; 
+                bottom: 110%; /* Flota encima */
                 left: 50% !important;
                 right: auto !important;
-                transform: translateX(-50%) translateY(10px) !important;
+                transform: translateX(-50%) translateY(15px) scale(0.9) !important;
+                text-align: center;
             }
+            /* Flecha apunta abajo */
             .card:nth-child(n) .speech-bubble::after {
-                top: auto;
-                bottom: -8px;
-                left: 50%;
-                margin-left: -8px;
+                top: auto; bottom: -8px; left: 50%; margin-left: -8px;
                 border-width: 8px 8px 0 8px;
-                border-color: #d4af37 transparent transparent transparent;
+                border-color: rgba(212, 175, 55, 0.4) transparent transparent transparent;
                 right: auto;
             }
+            
+            /* Animación Móvil */
             .card.talking .speech-bubble {
-                transform: translateX(-50%) translateY(0) !important;
+                opacity: 1;
+                transform: translateX(-50%) translateY(0) scale(1) !important;
             }
         }
 
-        /* Animación */
-        .card.talking .speech-bubble { opacity: 1; transform: translateX(0); }
+        /* Animación Desktop */
+        @media (min-width: 769px) {
+            .card.talking .speech-bubble {
+                opacity: 1; 
+                transform: translateX(0) scale(1); 
+            }
+        }
 
 
         /* --- MENÚ DE BOTONES --- */
         .vn-menu {
             position: fixed; bottom: 0; left: 0; width: 100%;
-            z-index: 600; display: flex; gap: 15px; padding: 15px 20px;
-            background: rgba(10, 5, 10, 0.85); 
-            border-top: 1px solid rgba(212, 175, 55, 0.3);
-            backdrop-filter: blur(10px);
+            z-index: 600; display: flex; gap: 15px; padding: 20px;
+            background: rgba(5, 5, 8, 0.9); /* Más oscuro */
+            border-top: 1px solid rgba(212, 175, 55, 0.2);
+            backdrop-filter: blur(15px);
             animation: fadeInUp 1.5s ease-out;
             justify-content: center; flex-wrap: wrap; 
         }
         .menu-btn {
-            background: transparent; border: none; color: #ccc;
+            background: transparent; border: 1px solid transparent; color: #ccc;
             font-family: 'Cinzel', serif; font-size: 1rem;
-            padding: 8px 15px; cursor: pointer; transition: 0.3s;
+            padding: 8px 20px; cursor: pointer; transition: 0.3s;
             text-transform: uppercase; letter-spacing: 2px;
+            border-radius: 4px;
         }
-        .menu-btn:hover, .menu-btn:active { color: #d4af37; text-shadow: 0 0 10px rgba(212, 175, 55, 0.7); transform: scale(1.1); }
+        .menu-btn:hover, .menu-btn:active { 
+            color: #d4af37; 
+            border-color: rgba(212, 175, 55, 0.3);
+            background: rgba(212, 175, 55, 0.05);
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.7); 
+        }
 
         @media (max-width: 600px) {
-            .vn-menu { gap: 5px; padding: 10px 5px; justify-content: space-around; }
-            .menu-btn { font-size: 0.8rem; padding: 5px 8px; letter-spacing: 1px; }
+            .vn-menu { gap: 10px; padding: 15px 10px; }
+            .menu-btn { font-size: 0.75rem; padding: 6px 10px; letter-spacing: 1px; border: 1px solid rgba(255,255,255,0.1); }
         }
 
         /* --- MODALES --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); z-index: 2000;
+            background: rgba(0,0,0,0.85); z-index: 3000; /* Z-index supremo */
             display: flex; justify-content: center; align-items: center;
             opacity: 0; pointer-events: none; transition: opacity 0.5s;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(8px);
         }
         .modal-overlay.visible { opacity: 1; pointer-events: auto; }
 
@@ -455,7 +479,7 @@
     <div id="fade-overlay"></div>
 
     <script>
-        // --- BASE DE DATOS DE DIÁLOGOS (ESPAÑOL) ---
+        // --- BASE DE DATOS DE DIÁLOGOS (ESPAÑOL FINAL) ---
         const charData = {
             konrad: [
                 { text: "La debilidad es un lujo que no podemos permitirnos.", audio: "konrad_1.mp3" },
