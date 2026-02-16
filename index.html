@@ -86,7 +86,7 @@
             width: 100%;
             padding: 20px 40px;
             overflow-x: auto; 
-            overflow-y: visible; /* IMPORTANTE: Permitir que los globos salgan */
+            overflow-y: visible; /* IMPORTANTE */
             margin-bottom: 70px; 
             scrollbar-width: none;
         }
@@ -97,30 +97,27 @@
             position: relative; 
             width: 160px; min-width: 150px; 
             height: 60vh; max-height: 400px; min-height: 250px;
-            /* CRÍTICO: Overflow visible para que el globo flote fuera */
             overflow: visible !important; 
-            background: transparent; /* El fondo va en .card-visuals */
+            background: transparent; 
             border: none;
             cursor: pointer; 
             flex-shrink: 0;
             z-index: 10;
         }
 
-        /* --- EL CUERPO VISUAL DE LA CARTA (Aquí aplicamos el recorte) --- */
+        /* --- CUERPO VISUAL DE LA CARTA --- */
         .card-visuals {
             width: 100%; height: 100%;
             position: relative;
             background: rgba(20, 20, 25, 0.4); 
             border: 1px solid rgba(139, 119, 89, 0.3);
-            /* Usamos drop-shadow en lugar de box-shadow para formas recortadas */
             filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5));
             backdrop-filter: blur(4px); 
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             display: flex; flex-direction: column;
-            overflow: hidden; /* Recorta la imagen interna */
+            overflow: hidden; 
         }
 
-        /* Aplicamos las formas SOLO al cuerpo visual */
         .card:nth-child(-n+3) .card-visuals { 
             clip-path: polygon(0% 20px, 100% 0%, 100% 100%, 0% 100%); 
             border-top: 1px solid rgba(255,255,255,0.3); 
@@ -130,13 +127,11 @@
             border-top: 1px solid rgba(255,255,255,0.3); 
         }
         
-        /* Escalas Visuales */
         .card:nth-child(1), .card:nth-child(6) { transform: scale(0.9); transform-origin: bottom; }
         .card:nth-child(2), .card:nth-child(5) { transform: scale(0.95); transform-origin: bottom; }
         .card:nth-child(3), .card:nth-child(4) { 
             transform: scale(1.0); transform-origin: bottom;
         }
-        /* Estilos especiales para protagonistas */
         .card:nth-child(3) .card-visuals, .card:nth-child(4) .card-visuals {
             border-color: rgba(212, 175, 55, 0.6); 
             background: rgba(30, 25, 30, 0.5); 
@@ -149,7 +144,6 @@
         .char-name { font-family: 'Cinzel'; font-size: 0.9rem; color: #fff; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 2px 4px #000; }
         .char-house { font-size: 0.6rem; color: #d4af37; text-transform: uppercase; letter-spacing: 1px; border-top: 1px solid rgba(212,175,55,0.3); display: inline-block; padding-top: 4px; }
 
-        /* Efecto Hover / Activo */
         .card:hover .card-visuals, .card:active .card-visuals { 
             border-color: #ffd700; 
             background: rgba(40, 30, 40, 0.8); 
@@ -158,40 +152,47 @@
         .card:hover { transform: scale(1.05) translateY(-5px); z-index: 100; }
         .card:hover .card-img { filter: grayscale(0) contrast(1.05); transform: scale(1.1); }
 
-        /* --- GLOBO DE DIÁLOGO (SPEECH BUBBLE) --- */
+        /* --- GLOBO DE DIÁLOGO (ABAJO) --- */
         .speech-bubble {
             position: absolute;
-            top: -50px; /* Posición inicial */
+            /* CAMBIO: Ubicación inferior */
+            bottom: -50px; 
             left: 50%; 
             transform: translateX(-50%) scale(0.8);
             background: rgba(250, 248, 245, 0.95);
             color: #1a1015;
-            padding: 10px 15px;
+            padding: 12px 15px;
             border-radius: 8px;
             border: 2px solid #d4af37;
             font-family: 'Lato', sans-serif;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: bold;
-            width: 180px;
+            width: 200px; /* Un poco más ancho para textos japoneses */
             text-align: center;
             box-shadow: 0 5px 20px rgba(0,0,0,0.6);
             pointer-events: none;
             opacity: 0;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 200; /* Muy por encima */
+            /* Z-Index extremo para tapar el menú si es necesario */
+            z-index: 500; 
         }
-        /* Triángulo del globo */
+        
+        /* Triángulo del globo (Apuntando hacia arriba) */
         .speech-bubble::after {
-            content: ''; position: absolute; bottom: -8px; left: 50%; margin-left: -8px;
-            border-width: 8px 8px 0; border-style: solid;
-            border-color: #d4af37 transparent;
+            content: ''; 
+            position: absolute; 
+            top: -8px; /* Triángulo arriba */
+            left: 50%; margin-left: -8px;
+            border-width: 0 8px 8px 8px; /* Apunta arriba */
+            border-style: solid;
+            border-color: transparent transparent #d4af37 transparent;
         }
 
         /* Clase para mostrar el globo */
         .card.talking .speech-bubble {
             opacity: 1; 
             transform: translateX(-50%) scale(1); 
-            top: -80px; /* Sube y se hace visible */
+            bottom: -90px; /* Baja un poco al aparecer */
         }
 
         /* --- MENÚ DE BOTONES --- */
@@ -451,28 +452,22 @@
         function playChar(charId, cardElement) {
             if(!charData[charId]) return;
 
-            // 1. Elegir frase aleatoria
             const randomIndex = Math.floor(Math.random() * charData[charId].length);
             const data = charData[charId][randomIndex];
 
-            // 2. Gestionar Globos (Resetear otros)
             document.querySelectorAll('.card').forEach(c => c.classList.remove('talking'));
             
             const bubble = cardElement.querySelector('.speech-bubble');
             if(bubble) {
-                bubble.textContent = data.text;
-                // Pequeño hack para permitir saltos de línea (\n)
                 bubble.innerHTML = data.text.replace(/\n/g, '<br>');
-                
                 cardElement.classList.add('talking');
 
                 if(currentBubble) clearTimeout(currentBubble);
                 currentBubble = setTimeout(() => {
                     cardElement.classList.remove('talking');
-                }, 4000); // 4 segundos para leer mejor
+                }, 4000); 
             }
 
-            // 3. Reproducir Audio
             voicePlayer.src = data.audio;
             voicePlayer.volume = 1.0;
             voicePlayer.play().catch(e => console.log("Falta audio: " + data.audio));
