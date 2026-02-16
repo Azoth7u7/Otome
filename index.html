@@ -155,8 +155,8 @@
         /* --- GLOBO DE DIÁLOGO (ABAJO) --- */
         .speech-bubble {
             position: absolute;
-            /* CAMBIO: Ubicación inferior */
-            bottom: -50px; 
+            /* CAMBIO: Ubicación inferior para que no tape el título */
+            bottom: -40px; 
             left: 50%; 
             transform: translateX(-50%) scale(0.8);
             background: rgba(250, 248, 245, 0.95);
@@ -167,17 +167,17 @@
             font-family: 'Lato', sans-serif;
             font-size: 0.8rem;
             font-weight: bold;
-            width: 200px; /* Un poco más ancho para textos japoneses */
+            width: 200px; 
             text-align: center;
             box-shadow: 0 5px 20px rgba(0,0,0,0.6);
             pointer-events: none;
             opacity: 0;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            /* Z-Index extremo para tapar el menú si es necesario */
+            /* Z-Index extremo para aparecer SOBRE el menú */
             z-index: 500; 
         }
         
-        /* Triángulo del globo (Apuntando hacia arriba) */
+        /* Triángulo del globo (Apuntando hacia ARRIBA) */
         .speech-bubble::after {
             content: ''; 
             position: absolute; 
@@ -185,14 +185,14 @@
             left: 50%; margin-left: -8px;
             border-width: 0 8px 8px 8px; /* Apunta arriba */
             border-style: solid;
-            border-color: transparent transparent #d4af37 transparent;
+            border-color: transparent transparent #d4af37 transparent; /* Color abajo */
         }
 
-        /* Clase para mostrar el globo */
+        /* Animación para mostrar el globo */
         .card.talking .speech-bubble {
             opacity: 1; 
             transform: translateX(-50%) scale(1); 
-            bottom: -90px; /* Baja un poco al aparecer */
+            bottom: -95px; /* Baja y se hace visible */
         }
 
         /* --- MENÚ DE BOTONES --- */
@@ -283,6 +283,7 @@
 
     <div class="title-container">
         <h1 class="game-title">El Jardín de las Rosas<br>y las Espinas</h1>
+        <div class="game-tagline">Entre el amor y el deber</div>
     </div>
 
     <div class="roster-container">
@@ -382,48 +383,47 @@
 
     <script>
         // --- BASE DE DATOS DE DIÁLOGOS (OPTIMIZADA) ---
-        // --- BASE DE DATOS DE DIÁLOGOS (FINAL V1) ---
         const charData = {
-            // KONRAD: (Militar estricto y protector)
+            // KONRAD: (Militar estricto)
             konrad: [
-                { text: "La debilidad es un lujo que no podemos permitirnos.", audio: "konrad_1.mp3" },
-                { text: "No tengo tiempo para juegos.", audio: "konrad_2.mp3" },
-                { text: "No te alejes de mi vista.", audio: "konrad_3.mp3" }
+                { text: "弱さは…許されない贅沢だ。\n(Yowasa wa... yurusarenai zeitaku da.)", audio: "konrad_1.mp3" },
+                { text: "遊びに付き合う暇はない。\n(Asobi ni tsukiau hima wa nai.)", audio: "konrad_2.mp3" },
+                { text: "俺の目の届くところにいろ。\n(Ore no me no todoku tokoro ni iro.)", audio: "konrad_3.mp3" }
             ],
 
-            // FRIEDRICH: (Hermano con debilidad por la protagonista)
+            // FRIEDRICH: (Hermano devoto)
             friedrich: [
-                { text: "Protegeré el legado Eidehart.", audio: "friedrich_1.mp3" },
-                { text: "Marianne, ten cuidado por favor.", audio: "friedrich_2.mp3" },
-                { text: "Ah... Supongo que es culpa mía por haberte malcriado tanto.", audio: "friedrich_3.mp3" }
+                { text: "アイデハート家の誇りは、僕が守る。\n(Eidehart-ke no hokori wa, boku ga mamoru.)", audio: "friedrich_1.mp3" },
+                { text: "マリアンヌ、くれぐれも…気をつけておくれ。\n(Marianne, kureguremo... ki wo tsukete okure.)", audio: "friedrich_2.mp3" },
+                { text: "あぁ…お前を甘やかしすぎた、僕の罪かな。\n(Aa... Omae wo amayakashi sugita, boku no tsumi ka na.)", audio: "friedrich_3.mp3" }
             ],
 
-            // MARIANNE: (Protagonista intuitiva y dulce)
+            // MARIANNE: (Protagonista)
             marianne: [
-                { text: "¡Espero hacer muchos amigos!", audio: "marianne_1.mp3" },
-                { text: "Mmm... tengo el presentimiento de que hoy pasará algo interesante.", audio: "marianne_2.mp3" },
-                { text: "¿Crees que encajaré en la academia?", audio: "marianne_3.mp3" }
+                { text: "たくさん友達ができるといいな！\n(Takusan tomodachi ga dekiru to ii na!)", audio: "marianne_1.mp3" },
+                { text: "んー…今日は何か、面白いことが起こりそう。\n(Un... Kyou wa nanika, omoshiroi koto ga okorisou.)", audio: "marianne_2.mp3" },
+                { text: "私…うまくやっていけるかな？\n(Watashi... umaku yatte ikeru kana?)", audio: "marianne_3.mp3" }
             ],
 
-            // ALBERT: (Príncipe soberbio y posesivo)
+            // ALBERT: (Príncipe Soberbio)
             albert: [
-                { text: "Todo lo bello de este reino acaba en mis manos. Es natural.", audio: "albert_1.mp3" },
-                { text: "Siéntete honrada. Tienes toda mi atención.", audio: "albert_2.mp3" },
-                { text: "Cuando hablo contigo el peso de la corona se aligera... a este paso no podré vivir sin ti.", audio: "albert_3.mp3" }
+                { text: "この国の美しいものは、すべて俺の手に落ちる。\n(Kono kuni no utsukushii mono wa, subete ore no te ni ochiru.)", audio: "albert_1.mp3" },
+                { text: "光栄に思え。俺は…お前だけを見ている。\n(Kouei ni omoe. Ore wa... omae dake wo miteiru.)", audio: "albert_2.mp3" },
+                { text: "お前といると王冠の重みが消える…もう、お前なしでは生きられないな。\n(Omae to iru to oukan no omomi ga kieru... Mou, omae nashi de wa ikirarenai na.)", audio: "albert_3.mp3" }
             ],
 
-            // ALARIC: (Mago intelectual y arrogante)
+            // ALARIC: (Mago Intelectual)
             alaric: [
-                { text: "Silencio, estoy leyendo.", audio: "alaric_1.mp3" },
-                { text: "Mmm... eres el único enigma que no logro descifrar.", audio: "alaric_2.mp3" },
-                { text: "Podría enseñarte hechizos que harían temblar a este reino.", audio: "alaric_3.mp3" }
+                { text: "静かにしてくれ。読書中だ。\n(Shizuka ni shite kure. Dokusho-chuu da.)", audio: "alaric_1.mp3" },
+                { text: "フン…僕が解読できない謎は、君だけだ。\n(Fun... Boku ga kaidoku dekinai nazo wa, kimi dake da.)", audio: "alaric_2.mp3" },
+                { text: "この国を揺るがすほどの魔法…君に教えてやろうか。\n(Kono kuni wo yurugasu hodo no mahou... kimi ni oshiete yarou ka.)", audio: "alaric_3.mp3" }
             ],
 
-            // KASIMIR: (Nuevo noble, comerciante cínico)
+            // KASIMIR: (Comerciante Rico)
             kasimir: [
-                { text: "No me hagas perder el tiempo. Mi tiempo vale oro.", audio: "kasimir_1.mp3" },
-                { text: "En este mundo, todo tiene un precio. ¿Cuál es el tuyo?", audio: "kasimir_2.mp3" },
-                { text: "He tenido las joyas más raras entre mis manos... pero ninguna me hipnotiza como tus ojos.", audio: "kasimir_3.mp3" }
+                { text: "俺の時間を無駄にするな。時は金なり、だ。\n(Ore no jikan wo muda ni suru na. Toki wa kane nari, da.)", audio: "kasimir_1.mp3" },
+                { text: "この世の全てには値段がある。…お前はいくらだ？\n(Kono yo no subete ni wa nedan ga aru. ...Omae wa ikura da?)", audio: "kasimir_2.mp3" },
+                { text: "どんな希少な宝石も手にしてきたが…お前の瞳ほど、魅力的なものはない。\n(Donna kishou na houseki mo te ni shite kita ga... Omae no hitomi hodo, miryoku-teki na mono wa nai.)", audio: "kasimir_3.mp3" }
             ]
         };
 
