@@ -370,36 +370,48 @@
     <script>
         // --- BASE DE DATOS DE DIÁLOGOS ---
         // Asegúrate de tener estos archivos de audio en tu carpeta
+        // --- BASE DE DATOS DE DIÁLOGOS (FINAL V1) ---
         const charData = {
+            // KONRAD: (Militar estricto y protector)
             konrad: [
-                { text: "El honor es lo único que importa.", audio: "konrad_1.mp3" },
-                { text: "¿Necesitas mi espada?", audio: "konrad_2.mp3" },
-                { text: "No tengo tiempo para juegos.", audio: "konrad_3.mp3" }
+                { text: "La debilidad es un lujo que no podemos permitirnos.", audio: "konrad_1.mp3" },
+                { text: "No tengo tiempo para juegos.", audio: "konrad_2.mp3" },
+                { text: "No te alejes de mi vista.", audio: "konrad_3.mp3" }
             ],
+
+            // FRIEDRICH: (Hermano con debilidad por la protagonista)
             friedrich: [
                 { text: "Protegeré el legado Eidehart.", audio: "friedrich_1.mp3" },
                 { text: "Marianne, ten cuidado por favor.", audio: "friedrich_2.mp3" },
-                { text: "Hay mucho peso sobre mis hombros.", audio: "friedrich_3.mp3" }
+                { text: "Ah... Supongo que es culpa mía por haberte malcriado tanto.", audio: "friedrich_3.mp3" }
             ],
+
+            // MARIANNE: (Protagonista intuitiva y dulce)
             marianne: [
                 { text: "¡Espero hacer muchos amigos!", audio: "marianne_1.mp3" },
-                { text: "¿Crees que encajaré en la academia?", audio: "marianne_2.mp3" },
-                { text: "¡Daré lo mejor de mí!", audio: "marianne_3.mp3" }
+                { text: "Mmm... tengo el presentimiento de que hoy pasará algo interesante.", audio: "marianne_2.mp3" },
+                { text: "¿Crees que encajaré en la academia?", audio: "marianne_3.mp3" }
             ],
+
+            // ALBERT: (Príncipe soberbio y posesivo)
             albert: [
-                { text: "Incluso las rosas tienen espinas.", audio: "albert_1.mp3" },
-                { text: "Jeje, qué reunión tan interesante.", audio: "albert_2.mp3" },
-                { text: "La realeza siempre observa.", audio: "albert_3.mp3" }
+                { text: "Todo lo bello de este reino acaba en mis manos. Es natural.", audio: "albert_1.mp3" },
+                { text: "Siéntete honrada. Tienes toda mi atención.", audio: "albert_2.mp3" },
+                { text: "Cuando hablo contigo el peso de la corona se aligera... a este paso no podré vivir sin ti.", audio: "albert_3.mp3" }
             ],
+
+            // ALARIC: (Mago intelectual y arrogante)
             alaric: [
-                { text: "El conocimiento es el verdadero poder.", audio: "alaric_1.mp3" },
-                { text: "Silencio, estoy leyendo.", audio: "alaric_2.mp3" },
-                { text: "Mmm... un dato fascinante.", audio: "alaric_3.mp3" }
+                { text: "Silencio, estoy leyendo.", audio: "alaric_1.mp3" },
+                { text: "Mmm... eres el único enigma que no logro descifrar.", audio: "alaric_2.mp3" },
+                { text: "Podría enseñarte hechizos que harían temblar a este reino.", audio: "alaric_3.mp3" }
             ],
+
+            // KASIMIR: (Nuevo noble, comerciante cínico)
             kasimir: [
-                { text: "¿Buscas problemas?", audio: "kasimir_1.mp3" },
-                { text: "No me molestes ahora.", audio: "kasimir_2.mp3" },
-                { text: "Hmph. Déjame en paz.", audio: "kasimir_3.mp3" }
+                { text: "No me hagas perder el tiempo. Mi tiempo vale oro.", audio: "kasimir_1.mp3" },
+                { text: "En este mundo, todo tiene un precio. ¿Cuál es el tuyo?", audio: "kasimir_2.mp3" },
+                { text: "He tenido las joyas más raras entre mis manos... pero ninguna me hipnotiza como tus ojos.", audio: "kasimir_3.mp3" }
             ]
         };
 
