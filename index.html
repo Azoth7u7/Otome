@@ -86,13 +86,13 @@
             width: 100%;
             padding: 20px 40px;
             overflow-x: auto; 
-            overflow-y: visible; /* IMPORTANTE */
+            overflow-y: visible; /* Para que los globos laterales se vean */
             margin-bottom: 70px; 
             scrollbar-width: none;
         }
         .roster-container::-webkit-scrollbar { display: none; }
 
-        /* --- LAS CARTAS (Contenedor Lógico) --- */
+        /* --- LAS CARTAS (Contenedor) --- */
         .card {
             position: relative; 
             width: 160px; min-width: 150px; 
@@ -105,7 +105,7 @@
             z-index: 10;
         }
 
-        /* --- CUERPO VISUAL DE LA CARTA --- */
+        /* --- CUERPO VISUAL --- */
         .card-visuals {
             width: 100%; height: 100%;
             position: relative;
@@ -129,9 +129,7 @@
         
         .card:nth-child(1), .card:nth-child(6) { transform: scale(0.9); transform-origin: bottom; }
         .card:nth-child(2), .card:nth-child(5) { transform: scale(0.95); transform-origin: bottom; }
-        .card:nth-child(3), .card:nth-child(4) { 
-            transform: scale(1.0); transform-origin: bottom;
-        }
+        .card:nth-child(3), .card:nth-child(4) { transform: scale(1.0); transform-origin: bottom; }
         .card:nth-child(3) .card-visuals, .card:nth-child(4) .card-visuals {
             border-color: rgba(212, 175, 55, 0.6); 
             background: rgba(30, 25, 30, 0.5); 
@@ -152,45 +150,55 @@
         .card:hover { transform: scale(1.05) translateY(-5px); z-index: 100; }
         .card:hover .card-img { filter: grayscale(0) contrast(1.05); transform: scale(1.1); }
 
-        /* --- GLOBO DE DIÁLOGO (ABAJO) --- */
+        /* --- GLOBO DE DIÁLOGO (LATERAL INTELIGENTE) --- */
         .speech-bubble {
             position: absolute;
-            bottom: -40px; 
-            left: 50%; 
-            transform: translateX(-50%) scale(0.8);
+            top: 20%; 
+            width: 180px;
             background: rgba(250, 248, 245, 0.95);
             color: #1a1015;
-            padding: 12px 15px;
+            padding: 10px;
             border-radius: 8px;
             border: 2px solid #d4af37;
             font-family: 'Lato', sans-serif;
             font-size: 0.8rem;
             font-weight: bold;
-            width: 200px; 
-            text-align: center;
+            text-align: left;
             box-shadow: 0 5px 20px rgba(0,0,0,0.6);
             pointer-events: none;
             opacity: 0;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 500; 
-        }
-        
-        /* Triángulo del globo (Apuntando hacia ARRIBA) */
-        .speech-bubble::after {
-            content: ''; 
-            position: absolute; 
-            top: -8px; /* Triángulo arriba */
-            left: 50%; margin-left: -8px;
-            border-width: 0 8px 8px 8px; /* Apunta arriba */
-            border-style: solid;
-            border-color: transparent transparent #d4af37 transparent; 
+            transition: all 0.3s ease;
+            z-index: 500;
         }
 
-        /* Animación para mostrar el globo */
+        /* LOGICA: Cartas 1, 2, 3 -> Globo a la DERECHA */
+        .card:nth-child(-n+3) .speech-bubble {
+            left: 105%; 
+            transform: translateX(-10px); 
+        }
+        .card:nth-child(-n+3) .speech-bubble::after {
+            content: ''; position: absolute; 
+            top: 15px; left: -8px;
+            border-width: 8px 8px 8px 0; border-style: solid;
+            border-color: transparent #d4af37 transparent transparent;
+        }
+
+        /* LOGICA: Cartas 4, 5, 6 -> Globo a la IZQUIERDA */
+        .card:nth-child(n+4) .speech-bubble {
+            right: 105%; 
+            transform: translateX(10px); 
+        }
+        .card:nth-child(n+4) .speech-bubble::after {
+            content: ''; position: absolute; 
+            top: 15px; right: -8px;
+            border-width: 8px 0 8px 8px; border-style: solid;
+            border-color: transparent transparent transparent #d4af37;
+        }
+
+        /* Animación */
         .card.talking .speech-bubble {
             opacity: 1; 
-            transform: translateX(-50%) scale(1); 
-            bottom: -95px; /* Baja y se hace visible */
+            transform: translateX(0); 
         }
 
         /* --- MENÚ DE BOTONES --- */
@@ -380,7 +388,7 @@
     <div id="fade-overlay"></div>
 
     <script>
-        // --- BASE DE DATOS DE DIÁLOGOS (FINAL V1) ---
+        // --- BASE DE DATOS DE DIÁLOGOS (ESPAÑOL FINAL) ---
         const charData = {
             konrad: [
                 { text: "La debilidad es un lujo que no podemos permitirnos.", audio: "konrad_1.mp3" },
@@ -446,22 +454,22 @@
             
             const bubble = cardElement.querySelector('.speech-bubble');
             if(bubble) {
-                bubble.textContent = data.text; 
+                bubble.innerHTML = data.text.replace(/\n/g, '<br>');
                 cardElement.classList.add('talking');
             }
 
             voicePlayer.src = data.audio;
             voicePlayer.volume = 1.0;
             
-            // Sincronización: Ocultar globo solo cuando termine el audio
+            // SINCRONIZACIÓN: Ocultar globo solo cuando termine el audio
             voicePlayer.onended = () => {
                 cardElement.classList.remove('talking');
             };
 
             voicePlayer.play().catch(e => {
                 console.log("Falta audio: " + data.audio);
-                // Fallback si no hay audio: ocultar en 4 seg
-                setTimeout(() => cardElement.classList.remove('talking'), 4000);
+                // Fallback de seguridad si no hay audio
+                setTimeout(() => cardElement.classList.remove('talking'), 3500);
             });
         }
 
