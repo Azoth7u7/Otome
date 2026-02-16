@@ -15,7 +15,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            /* 100dvh es vital para evitar problemas con la barra de direcciones en iOS */
             height: 100vh; height: 100dvh; 
             width: 100vw;
             background: #0b0d14;
@@ -26,7 +25,6 @@
             justify-content: space-between;
             overflow: hidden; position: relative;
             -webkit-user-select: none; user-select: none;
-            /* Evita el flash azul al tocar en móviles */
             -webkit-tap-highlight-color: transparent;
             /* Soporte para el Notch del iPhone */
             padding-top: env(safe-area-inset-top);
@@ -70,7 +68,7 @@
             width: 90%; flex-shrink: 0;
         }
         .game-title {
-            font-family: 'Cinzel', serif; font-size: clamp(1.5rem, 5vw, 4.5rem);
+            font-family: 'Cinzel', serif; font-size: clamp(2rem, 6vw, 4.5rem);
             line-height: 1;
             background: linear-gradient(to bottom, #fff0f5, #d4af37);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -82,7 +80,7 @@
             font-style: italic; margin-top: 10px; text-transform: uppercase; opacity: 0.9;
         }
 
-        /* --- ROSTER DE CARTAS (GALERÍA PREMIUM MÓVIL) --- */
+        /* --- ROSTER DE CARTAS --- */
         .roster-container {
             display: flex; 
             justify-content: center; 
@@ -99,29 +97,40 @@
             margin-bottom: 70px; 
             scrollbar-width: none; 
             
-            /* Scroll suave e imantado para iPhone */
+            /* Scroll suave para iPhone */
             -webkit-overflow-scrolling: touch;
             scroll-snap-type: x mandatory; 
             scroll-padding: 0 50%;
         }
         .roster-container::-webkit-scrollbar { display: none; } 
 
-        /* Ajuste Móvil Horizontal */
-        @media (max-width: 900px) {
+        /* Ajuste Móvil Universal (Landscape y Portrait) */
+        @media (max-width: 1200px) {
             .roster-container {
                 justify-content: flex-start; 
-                /* Padding extra para centrar la primera carta */
+                /* Centrado inteligente: Espacio a la izq para que la 1ra carta quede al centro */
                 padding: 0 calc(50vw - 80px); 
                 gap: 15px;
                 margin-bottom: 80px; 
             }
         }
 
+        /* --- FIX MODO PAISAJE (Tu captura) --- */
+        /* Si la altura es poca (celular horizontal), achicamos todo */
+        @media (max-height: 600px) and (orientation: landscape) {
+            .title-container { margin-top: 10px; }
+            .game-title { font-size: 1.8rem; } /* Título más discreto */
+            .game-tagline { display: none; } /* Adios subtítulo */
+            .card { height: 60vh; min-height: 180px; width: 130px; min-width: 130px; }
+            .roster-container { margin-bottom: 60px; padding: 0 calc(50vw - 65px); }
+            .vn-menu { padding: 5px 20px; }
+            .menu-btn { font-size: 0.8rem; padding: 5px 10px; }
+        }
+
         /* --- LAS CARTAS --- */
         .card {
             position: relative; 
             width: 160px; min-width: 150px; 
-            /* Altura adaptativa */
             height: 55vh; max-height: 400px; min-height: 250px;
             overflow: visible !important; 
             background: transparent; 
@@ -129,23 +138,13 @@
             cursor: pointer; 
             flex-shrink: 0;
             z-index: 10;
-            
             scroll-snap-align: center; 
             transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), z-index 0s;
         }
 
-        @media (max-width: 600px) {
-            .card { min-width: 140px; }
-        }
-
-        /* --- SOLUCIÓN Z-INDEX (SUPERPOSICIÓN) --- */
-        /* Al hablar o tocar, la carta sube al cielo de las capas */
-        .card.talking { z-index: 2000 !important; }
-        
-        /* Solo aplicar hover z-index en PC, en movil causa bugs */
-        @media (hover: hover) {
-            .card:hover { z-index: 2000 !important; }
-        }
+        /* --- Z-INDEX SUPREMO (SOLUCIÓN AL TEXTO DETRÁS) --- */
+        .card.talking { z-index: 5000 !important; }
+        .card:hover { z-index: 5000 !important; }
 
         /* --- CUERPO VISUAL --- */
         .card-visuals {
@@ -155,13 +154,13 @@
             border: 1px solid rgba(139, 119, 89, 0.3);
             filter: drop-shadow(0 15px 25px rgba(0,0,0,0.6));
             backdrop-filter: blur(4px); 
-            -webkit-backdrop-filter: blur(4px); /* Soporte iOS */
+            -webkit-backdrop-filter: blur(4px);
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             display: flex; flex-direction: column;
             overflow: hidden; 
         }
 
-        /* Recortes Catedral */
+        /* Recortes */
         .card:nth-child(-n+3) .card-visuals { 
             clip-path: polygon(0% 20px, 100% 0%, 100% 100%, 0% 100%); 
             border-top: 1px solid rgba(255,255,255,0.3); 
@@ -171,7 +170,6 @@
             border-top: 1px solid rgba(255,255,255,0.3); 
         }
         
-        /* Escalas predeterminadas */
         .card:nth-child(1), .card:nth-child(6) { transform: scale(0.95); transform-origin: bottom; }
         .card:nth-child(2), .card:nth-child(5) { transform: scale(0.98); transform-origin: bottom; }
         .card:nth-child(3), .card:nth-child(4) { transform: scale(1.0); transform-origin: bottom; }
@@ -188,18 +186,6 @@
         .char-name { font-family: 'Cinzel'; font-size: 0.9rem; color: #fff; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 2px 4px #000; }
         .char-house { font-size: 0.6rem; color: #d4af37; text-transform: uppercase; letter-spacing: 1px; border-top: 1px solid rgba(212,175,55,0.3); display: inline-block; padding-top: 4px; }
 
-        /* Efectos Hover (Solo Desktop) */
-        @media (hover: hover) {
-            .card:hover .card-visuals { 
-                border-color: #ffd700; 
-                background: rgba(40, 30, 40, 0.8); 
-                filter: drop-shadow(0 0 20px rgba(255, 200, 100, 0.3));
-            }
-            .card:hover { transform: scale(1.05) translateY(-10px); } 
-            .card:hover .card-img { filter: grayscale(0) contrast(1.05); transform: scale(1.1); }
-        }
-        
-        /* Efectos Active/Talking (Móvil y Desktop) */
         .card.talking .card-visuals {
             border-color: #ffd700; 
             background: rgba(40, 30, 40, 0.8);
@@ -208,39 +194,33 @@
         .card.talking .card-img { filter: grayscale(0) contrast(1.05); transform: scale(1.05); }
 
 
-        /* --- GLOBO DE DIÁLOGO "CRISTAL PREMIUM" --- */
+        /* --- GLOBO DE DIÁLOGO "CRISTAL" --- */
         .speech-bubble {
             position: absolute;
             top: 25%; 
             width: 200px;
-            
-            /* Glassmorphism Real */
-            background: rgba(15, 12, 15, 0.8); 
+            background: rgba(15, 12, 15, 0.85); 
             backdrop-filter: blur(12px); 
-            -webkit-backdrop-filter: blur(12px); /* Vital para iPhone */
+            -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(212, 175, 55, 0.5); 
-            border-top: 1px solid rgba(255, 255, 255, 0.2); 
-            box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.7); 
-            
+            box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.8); 
             color: #fff;
             text-shadow: 0 2px 4px rgba(0,0,0,0.8);
             padding: 15px;
             border-radius: 12px;
-            
             font-family: 'Lato', sans-serif;
             font-size: 0.85rem;
             font-weight: 400;
             letter-spacing: 0.5px;
             line-height: 1.4;
-            
             text-align: left;
             pointer-events: none;
             opacity: 0;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 3000; /* Encima de todo */
+            z-index: 6000; /* Encima de la carta talking */
         }
 
-        /* 1-3 DERECHA */
+        /* Flechas */
         .card:nth-child(-n+3) .speech-bubble {
             left: 105%; transform: translateX(-20px) scale(0.9); 
         }
@@ -250,7 +230,6 @@
             border-color: transparent rgba(212, 175, 55, 0.5) transparent transparent;
         }
 
-        /* 4-6 IZQUIERDA */
         .card:nth-child(n+4) .speech-bubble {
             right: 105%; transform: translateX(20px) scale(0.9); 
         }
@@ -260,41 +239,31 @@
             border-color: transparent transparent transparent rgba(212, 175, 55, 0.5);
         }
 
-        /* MEDIA QUERY: MÓVILES (Portrait/Pantalla Estrecha) */
-        /* Si la pantalla es muy angosta, el globo sale ARRIBA */
+        /* MÓVIL (Portrait o Landscape apretado) */
         @media (max-width: 850px) {
             .speech-bubble {
-                width: 180px;
-                font-size: 0.8rem;
-                top: auto;
-                bottom: 105%; /* Flota encima */
-                left: 50% !important;
-                right: auto !important;
+                width: 180px; font-size: 0.8rem;
+                top: auto; bottom: 105%; /* Arriba de la carta */
+                left: 50% !important; right: auto !important;
                 transform: translateX(-50%) translateY(15px) scale(0.9) !important;
                 text-align: center;
             }
-            /* Flecha apunta abajo */
             .card:nth-child(n) .speech-bubble::after {
                 top: auto; bottom: -8px; left: 50%; margin-left: -8px;
                 border-width: 8px 8px 0 8px;
                 border-color: rgba(212, 175, 55, 0.5) transparent transparent transparent;
                 right: auto;
             }
-            
-            /* Animación Móvil */
             .card.talking .speech-bubble {
-                opacity: 1;
                 transform: translateX(-50%) translateY(0) scale(1) !important;
             }
         }
 
-        /* Animación Desktop (Pantalla ancha) */
+        /* Animación Desktop */
         @media (min-width: 851px) {
-            .card.talking .speech-bubble {
-                opacity: 1; 
-                transform: translateX(0) scale(1); 
-            }
+            .card.talking .speech-bubble { opacity: 1; transform: translateX(0) scale(1); }
         }
+        .card.talking .speech-bubble { opacity: 1; } /* Asegurar que se ve */
 
 
         /* --- MENÚ DE BOTONES --- */
@@ -303,11 +272,9 @@
             z-index: 600; display: flex; gap: 15px; padding: 20px;
             background: rgba(5, 5, 8, 0.9); 
             border-top: 1px solid rgba(212, 175, 55, 0.2);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
             animation: fadeInUp 1.5s ease-out;
             justify-content: center; flex-wrap: wrap;
-            /* Respetar área segura inferior del iPhone (barra blanca) */
             padding-bottom: max(20px, env(safe-area-inset-bottom)); 
         }
         .menu-btn {
@@ -318,25 +285,23 @@
             border-radius: 4px;
         }
         .menu-btn:hover, .menu-btn:active { 
-            color: #d4af37; 
-            border-color: rgba(212, 175, 55, 0.3);
+            color: #d4af37; border-color: rgba(212, 175, 55, 0.3);
             background: rgba(212, 175, 55, 0.05);
             text-shadow: 0 0 10px rgba(212, 175, 55, 0.7); 
         }
 
         @media (max-width: 600px) {
-            .vn-menu { gap: 10px; padding: 15px 10px; padding-bottom: max(15px, env(safe-area-inset-bottom)); }
-            .menu-btn { font-size: 0.75rem; padding: 6px 10px; letter-spacing: 1px; border: 1px solid rgba(255,255,255,0.1); }
+            .vn-menu { gap: 10px; padding: 10px; padding-bottom: max(10px, env(safe-area-inset-bottom)); }
+            .menu-btn { font-size: 0.75rem; padding: 6px 10px; }
         }
 
         /* --- MODALES --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 4000;
+            background: rgba(0,0,0,0.85); z-index: 7000;
             display: flex; justify-content: center; align-items: center;
             opacity: 0; pointer-events: none; transition: opacity 0.5s;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
         }
         .modal-overlay.visible { opacity: 1; pointer-events: auto; }
 
@@ -372,10 +337,14 @@
         #orientation-warning p { font-family: 'Lato'; color: #888; }
         #orientation-icon { font-size: 3rem; animation: rotatePhone 2s infinite ease-in-out; margin-bottom: 20px; }
         @keyframes rotatePhone { 0%, 10% { transform: rotate(0deg); } 40%, 60% { transform: rotate(90deg); } 90%, 100% { transform: rotate(0deg); } }
-        @media screen and (orientation: portrait) and (max-width: 500px) { #orientation-warning { display: flex; } }
+        
+        /* Solo mostrar advertencia en Portrait ESTRECHO (<500px) */
+        @media screen and (orientation: portrait) and (max-width: 500px) { 
+            #orientation-warning { display: flex; } 
+        }
 
         /* --- TRANSICIÓN --- */
-        #fade-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 5000; opacity: 0; pointer-events: none; transition: opacity 2s; }
+        #fade-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 8000; opacity: 0; pointer-events: none; transition: opacity 2s; }
         @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -571,20 +540,18 @@
 
             // --- AUDIO DUCKING (BAJAR VOLUMEN BGM) ---
             const bgm = document.getElementById('bgm');
-            if(bgm) bgm.volume = 0.1; // Bajar música al 10%
+            if(bgm) bgm.volume = 0.1; 
 
             voicePlayer.src = data.audio;
             voicePlayer.volume = 1.0;
             
-            // SINCRONIZACIÓN: Restaurar música y ocultar globo al terminar
             voicePlayer.onended = () => {
                 cardElement.classList.remove('talking');
-                if(bgm) bgm.volume = 0.5; // Restaurar música al 50%
+                if(bgm) bgm.volume = 0.5; 
             };
 
             voicePlayer.play().catch(e => {
                 console.log("Falta audio: " + data.audio);
-                // Fallback de seguridad
                 setTimeout(() => {
                     cardElement.classList.remove('talking');
                     if(bgm) bgm.volume = 0.5;
